@@ -1,0 +1,5 @@
+name: counterfact_max
+n_edits: 100
+batch_size: 16
+train_path: data/dsets/counterfact/counterfact_train.json
+valid_path: data/dsets/counterfact/counterfact_eval.json

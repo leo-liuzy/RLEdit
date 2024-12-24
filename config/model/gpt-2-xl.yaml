@@ -1,0 +1,25 @@
+name_or_path: /root/autodl-tmp/gpt2-xl
+name: gpt2-xl
+model_vec_size: 8000
+
+class_name: AutoModelForCausalLM
+edit_modules:
+# - transformer.h.25.mlp.c_proj
+# - transformer.h.26.mlp.c_proj
+# - transformer.h.27.mlp.c_proj
+# - transformer.h.28.mlp.c_proj
+# - transformer.h.29.mlp.c_proj
+# - transformer.h.30.mlp.c_proj
+# - transformer.h.31.mlp.c_proj
+- transformer.h.32.mlp.c_proj
+- transformer.h.33.mlp.c_proj
+- transformer.h.34.mlp.c_proj
+- transformer.h.35.mlp.c_proj
+- transformer.h.36.mlp.c_proj
+- transformer.h.37.mlp.c_proj
+- transformer.h.38.mlp.c_proj
+- transformer.h.39.mlp.c_proj
+- transformer.h.40.mlp.c_proj
+# - transformer.h.41.mlp.c_proj
+# - transformer.h.42.mlp.c_proj
+half: False

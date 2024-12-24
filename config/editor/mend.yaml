@@ -1,0 +1,15 @@
+name: mend
+rank: 1920
+n_blocks: 2
+lr: 1e-6
+meta_lr: 1e-5
+loc_coef: 1
+max_grad_norm: 1
+n_epochs: 10
+batch_size: 1024
+token: all
+cache_dir: cache
+save_checkpoint: False
+load_checkpoint: False
+cache_dir_2: /root/autodl-tmp/cache
+n_test: 10
