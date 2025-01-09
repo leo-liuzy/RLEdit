@@ -43,6 +43,24 @@ class MEND(BaseEditor):
             self.net.load_state_dict(torch.load(f"checkpoints/{config.model.name}_{config.editor.name}_{str(config.data.n_edits)}_net.pth"))
             self.opt.load_state_dict(torch.load(f"checkpoints/{config.model.name}_{config.editor.name}_{str(config.data.n_edits)}_opt.pth"))
 
+    def reset_hypernet(self):
+
+        self.net = nn.ModuleDict({
+            str(k): MALMENNet(
+                *k,
+                self.config.editor.rank,
+                self.config.editor.n_blocks,
+                v,
+                self.config.editor.lr
+            )
+            for k, v in self.shape_counter.items()
+        }).to(self.config.editor_device)
+        
+        self.opt = torch.optim.Adam(
+            self.net.parameters(),
+            self.config.editor.meta_lr
+        )
+
     def predict_param_shifts(self) -> Dict[str, torch.FloatTensor]:
         
         param_shifts = {}
@@ -51,7 +69,7 @@ class MEND(BaseEditor):
             shape = get_shape(get_module(self.model, module_name))
             net = self.net[str(shape)]
             layer_idx = torch.LongTensor([self.name2idx[module_name]]).to(self.config.editor_device)
-            param_shift = torch.zeros((net.key_size, net.value_size), device = self.config.editor_device)
+            param_shift = torch.zeros((net.key_size, net.value_size), device=self.config.editor_device)
             for idx in range(math.ceil(self.config.data.n_edits / self.config.data.batch_size)):
                 keys = torch.load(f"{self.config.editor.cache_dir}/{self.config.model.name}_{self.config.editor.name}_{self.config.data.n_edits}/{module_idx}_{idx}_keys.pth")
                 values_grad = torch.load(f"{self.config.editor.cache_dir}/{self.config.model.name}_{self.config.editor.name}_{self.config.data.n_edits}/{module_idx}_{idx}_values_grad.pth")
@@ -63,7 +81,7 @@ class MEND(BaseEditor):
         return param_shifts
     
 
-    def update_hypernet(self, param_shifts: Dict[str, torch.FloatTensor]):
+    def update_hypernet(self, param_shifts: Dict[str, torch.FloatTensor], update: bool):
         
         self.opt.zero_grad()
         for module_idx, module_name in enumerate(self.config.model.edit_modules,):
@@ -78,7 +96,6 @@ class MEND(BaseEditor):
                 keys = torch.load(f"{self.config.editor.cache_dir}/{self.config.model.name}_{self.config.editor.name}_{self.config.data.n_edits}/{module_idx}_{idx}_keys.pth")
                 values_grad = torch.load(f"{self.config.editor.cache_dir}/{self.config.model.name}_{self.config.editor.name}_{self.config.data.n_edits}/{module_idx}_{idx}_values_grad.pth")
                 pesudo_keys, pesudo_values_grad = net(keys, values_grad, layer_idx)
-                # print(f"pesudo_keys: {pesudo_keys.shape}")
                 param_shift = - net.lr(layer_idx) * pesudo_keys.T @ pesudo_values_grad
                 (module_grad * param_shift).sum().backward()
 
@@ -86,4 +103,7 @@ class MEND(BaseEditor):
             self.net.parameters(),
             self.config.editor.max_grad_norm
         )
-        self.opt.step()
+        
+        if update == True:
+            self.opt.step()
+            self.opt.zero_grad()

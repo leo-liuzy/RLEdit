@@ -130,7 +130,8 @@ class NEWMALMEN(BaseEditor):
         if config.editor.load_checkpoint:
             self.net.load_state_dict(torch.load(f"checkpoints/{config.model.name}_{config.editor.name}_{str(config.data.n_edits)}_net.pth"))
             self.opt.load_state_dict(torch.load(f"checkpoints/{config.model.name}_{config.editor.name}_{str(config.data.n_edits)}_opt.pth"))
-        
+            print("-----Loaded checkpoints-----")
+
 
     def reset_hypernet(self):
 

@@ -30,14 +30,18 @@ def main(config: DictConfig):
     editor_class = getattr(editor_module, config.editor.name.upper())
     editor = editor_class(config, model)
 
-    if config.mode == "train_seq":
-        editor.run_sequential_all_test(train_loader, valid_loader)
-    elif config.mode == "train":
-        editor.run(train_loader, valid_loader)
+    if config.mode == "reedit":
+        editor.run_reedit(train_loader, valid_loader)
+    elif config.mode == "single":
+        editor.run_single(train_loader, valid_loader)
+    elif config.mode == "sequential":
+        editor.run_sequential(train_loader, valid_loader)
+    elif config.mode == "sequential_retrain":
+        editor.run_sequential_retrain_full(train_loader, valid_loader)
     elif config.mode == "valid":
         editor.run_test(valid_loader)
-    elif config.mode == "retrain_mend":
-        editor.run_retrain(train_loader, valid_loader)
+    elif config.mode == "preedited":
+        editor.run_preedited(train_loader, valid_loader)
 
 
 if __name__ == "__main__":

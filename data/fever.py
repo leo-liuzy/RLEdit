@@ -56,9 +56,8 @@ class FEVERDataset(BaseDataset):
             return_tensors = "pt",
             add_special_tokens = False
         )
-        # isinstance(self.tok, PreTrainedTokenizerFast):
 
-        answer = " " + answer  # 和 GPT2 类似，Llama 也需要在答案前加空格
+        answer = " " + answer
             
         tok_prompt = self.tok(
             prompt,
@@ -70,7 +69,6 @@ class FEVERDataset(BaseDataset):
             add_special_tokens=False
         )
 
-        # 模仿 GPT2 的逻辑
         tok_tuples = {
             key: torch.cat((value, tok_answer[key][:, :-1]), -1)
             for key, value in tok_prompt.items()

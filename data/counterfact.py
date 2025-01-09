@@ -21,17 +21,6 @@ class COUNTERFACTDataset(BaseDataset):
     
     def __getitem__(self, idx) -> Dict[str, Dict[str, torch.LongTensor]]:
         row = self.data[idx]
-        
-        # prompt = row["prompt"]
-        # equiv_prompt_keys = random.choice(row["portability"][random.choice(list(row["portability"].keys()))])
-        # equiv_prompt = equiv_prompt_keys["prompt"]
-        # answer = row["target_new"]
-        # ground_truth = row["ground_truth"]
-        # equiv_ground_truth = equiv_prompt_keys["ground_truth"]
-        # unrel_prompt_keys = random.choice(row["locality"][random.choice(list(row["locality"].keys()))])
-        # unrel_prompt = unrel_prompt_keys["prompt"]
-        # unrel_answer = unrel_prompt_keys["ground_truth"]
-        # # generation_prompts = row["generation_prompts"]
 
         prompt = row["requested_rewrite"]["prompt"].format(row["requested_rewrite"]["subject"])
         equiv_prompt = random.choice(row["paraphrase_prompts"])

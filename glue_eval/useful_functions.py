@@ -36,7 +36,10 @@ def load_data_split(filename, number_of_few_shots, number_of_tests):
 MODEL_NAME_TO_MAXIMUM_CONTEXT_LENGTH_MAP = {
     "gpt2-xl": 1024,
     "llama-2-7b-hf": 4096,
-    "llama3-8b-instruct": 4096,
+    "llama3-8b": 4096,
+    "gemma-2-9b-it": 4096,
+    "mistral-7b-instruct": 4096,
+    "llama-3-8b-instruct": 4096,
     "eleutherai_gpt-j-6b": 2048,
     "gpt2-large": 1024,
     "gpt2-medium": 1024
