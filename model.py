@@ -1,5 +1,5 @@
 import os
-os.environ['CUDA_VISIBLE_DEVICES'] =  '2'
+# os.environ['CUDA_VISIBLE_DEVICES'] =  '6'
 
 from omegaconf import DictConfig
 
@@ -30,35 +30,9 @@ class AutoModelForFEVER(nn.Module):
 
 
 def make_model(config: DictConfig):
-    
-    if config.class_name == "AutoModelForFEVER":
-        model = AutoModelForFEVER(config.name_or_path)
-        model.load_state_dict(torch.load(config.weight_path))
-    else:
-        model_class = getattr(transformers, config.class_name)
-        model = model_class.from_pretrained(config.name_or_path)
-        # model = model_class.from_pretrained("/data/ruip/NewMend/LM/retrain_llama-3")
 
-    if config.half:
-        model.bfloat16()
-
-    for param in model.parameters():
-        param.requires_grad = False
-        
-    for module_name in config.edit_modules:
-        module = get_module(model, module_name)
-        module.weight.requires_grad = True
-        
-    return model
-
-def make_model_retrain(config: DictConfig):
-    
-    if config.class_name == "AutoModelForFEVER":
-        model = AutoModelForFEVER(config.name_or_path)
-        model.load_state_dict(torch.load(config.weight_path))
-    else:
-        model_class = getattr(transformers, config.class_name)
-        model = model_class.from_pretrained("/data/ruip/NewMend/LM/retrain_llama-3")
+    model_class = getattr(transformers, config.class_name)
+    model = model_class.from_pretrained(config.name_or_path)
 
     if config.half:
         model.bfloat16()

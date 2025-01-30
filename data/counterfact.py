@@ -10,9 +10,6 @@ import nltk
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from transformers import AutoModelForCausalLM, AutoTokenizer
-# from transformers.models.gpt2.tokenization_gpt2_fast import GPT2TokenizerFast
-# from transformers.models.t5.tokenization_t5_fast import T5TokenizerFast
-# from transformers.models.llama.tokenization_llama_fast import LlamaTokenizerFast
 
 from data.base import BaseDataset
 

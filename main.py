@@ -5,7 +5,6 @@ import importlib
 
 from data.base import make_loader
 from model import make_model
-# from glue_eval import GLUEEval
 
 import wandb
 
@@ -23,7 +22,7 @@ def main(config: DictConfig):
     data_class = getattr(data_module, f"{config.data.name.upper()}Dataset")
 
     train_loader, valid_loader = make_loader(config, data_class)
-     
+
     model = make_model(config.model).to(config.model_device)
 
     editor_module = importlib.import_module(f"editor.{config.editor.name}")

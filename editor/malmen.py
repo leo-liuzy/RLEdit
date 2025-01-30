@@ -7,26 +7,14 @@ import torch
 import torch.nn as nn
 from torch.nn.utils import clip_grad_norm_
 
-from nets import MALMENNet
+from nets import RLEditNet
 
 from editor.base import BaseEditor
 from util import get_module, get_shape
 
 
 def pad_tensor(tensor, target_length, dim=0, padding_value=0):
-    """
-    在指定维度上将张量填充到目标长度,并返回填充后的张量和对应的 mask。
 
-    参数:
-        tensor (torch.Tensor): 输入张量,形状为(..., length, ...)。
-        target_length (int): 目标长度。
-        dim (int): 要填充的维度,默认为0。
-        padding_value (float): 填充值,默认为0。
-
-    返回:
-        padded_tensor (torch.Tensor): 填充后的张量,形状为(..., target_length, ...)。
-        mask (torch.Tensor): 填充的 mask,形状为(..., target_length, ...)。
-    """
     tensor_length = tensor.size(dim)
     if tensor_length >= target_length:
         return tensor.narrow(dim, 0, target_length)
@@ -52,7 +40,7 @@ class MALMEN(BaseEditor):
             model
         )
         self.net = nn.ModuleDict({
-            str(k): MALMENNet(
+            str(k): RLEditNet(
                 *k,
                 config.editor.rank,
                 config.editor.n_blocks,
@@ -69,15 +57,13 @@ class MALMEN(BaseEditor):
         if config.editor.load_checkpoint:
             self.net.load_state_dict(torch.load(f"checkpoints/{config.model.name}_{config.editor.name}_{str(config.data.n_edits)}_net.pth"))
             self.opt.load_state_dict(torch.load(f"checkpoints/{config.model.name}_{config.editor.name}_{str(config.data.n_edits)}_opt.pth"))
-            # self.net.load_state_dict(torch.load(f"checkpoints/{config.model.name}_{config.editor.name}_4_net.pth"))
-            # self.opt.load_state_dict(torch.load(f"checkpoints/{config.model.name}_{config.editor.name}_4_opt.pth"))            
             print("-----Loaded checkpoints-----")
 
 
     def reset_hypernet(self):
 
         self.net = nn.ModuleDict({
-            str(k): MALMENNet(
+            str(k): RLEditNet(
                 *k,
                 self.config.editor.rank,
                 self.config.editor.n_blocks,
@@ -91,86 +77,6 @@ class MALMEN(BaseEditor):
             self.net.parameters(),
             self.config.editor.meta_lr
         )
-
-
-    # def predict_param_shifts(self) -> Dict[str, torch.FloatTensor]:
-        
-    #     param_shifts = {}
-    #     for module_idx, module_name in enumerate(self.config.model.edit_modules):
-
-    #         shape = get_shape(get_module(self.model, module_name))
-    #         net = self.net[str(shape)]
-    #         layer_idx = torch.LongTensor([self.name2idx[module_name]]).to(self.config.editor_device)
-    #         keys = torch.cat([
-    #             torch.load(f"{self.config.editor.cache_dir}/{self.config.model.name}_{self.config.editor.name}_{self.config.data.n_edits}/{module_idx}_{idx}_keys.pth")
-    #             for idx in range(math.ceil(self.config.data.n_edits / self.config.data.batch_size))
-    #         ])
-    #         values_grad = torch.cat([
-    #             torch.load(f"{self.config.editor.cache_dir}/{self.config.model.name}_{self.config.editor.name}_{self.config.data.n_edits}/{module_idx}_{idx}_values_grad.pth")
-    #             for idx in range(math.ceil(self.config.data.n_edits / self.config.data.batch_size))
-    #         ])
-    #         value_diffs = torch.empty((0, net.value_size), device = self.config.editor_device)
-    #         for start_idx in range(0, keys.shape[0], self.config.editor.batch_size):
-    #             end_idx = start_idx + self.config.editor.batch_size
-    #             with torch.no_grad():
-    #                 pesudo_keys, pesudo_values_grad = net(
-    #                     keys[start_idx:end_idx],
-    #                     values_grad[start_idx:end_idx],
-    #                     layer_idx
-    #                 )
-    #                 coeffs = - net.lr(layer_idx) * (keys[start_idx:end_idx] * pesudo_keys).sum(-1).unsqueeze(-1)
-    #             value_diffs = torch.cat((value_diffs, coeffs * pesudo_values_grad))
-    #         with torch.no_grad():
-    #             mat = keys.T @ keys + net.lamda(layer_idx).exp() * torch.eye(net.key_size, device = self.config.editor_device)
-    #         param_shift = torch.linalg.solve(mat, keys.T @ value_diffs)
-    #         param_shifts[module_name] = param_shift.to(next(self.model.parameters()).device)
-
-    #     return param_shifts
-    
-
-    # def update_hypernet(self, param_shifts: Dict[str, torch.FloatTensor], update: bool):
-        
-    #     self.opt.zero_grad()
-    #     for module_idx, module_name in enumerate(self.config.model.edit_modules):
-    #         shape = get_shape(get_module(self.model, module_name))
-    #         net = self.net[str(shape)]
-    #         layer_idx = torch.LongTensor([self.name2idx[module_name]]).to(self.config.editor_device)
-    #         keys = torch.cat([
-    #             torch.load(f"{self.config.editor.cache_dir}/{self.config.model.name}_{self.config.editor.name}_{self.config.data.n_edits}/{module_idx}_{idx}_keys.pth")
-    #             for idx in range(math.ceil(self.config.data.n_edits / self.config.data.batch_size))
-    #         ])
-    #         values_grad = torch.cat([
-    #             torch.load(f"{self.config.editor.cache_dir}/{self.config.model.name}_{self.config.editor.name}_{self.config.data.n_edits}/{module_idx}_{idx}_values_grad.pth")
-    #             for idx in range(math.ceil(self.config.data.n_edits // self.config.data.batch_size))
-    #         ])
-    #         module = get_module(self.model, module_name)
-    #         module_grad = module.weight.grad.to(torch.float32).to(self.config.editor_device)
-    #         param_shift = param_shifts[module_name].to(self.config.editor_device)
-    #         if isinstance(module, nn.Linear):
-    #             module_grad = module_grad.T
-    #         with torch.no_grad():
-    #             mat = torch.linalg.solve(keys.T @ keys + net.lamda(layer_idx).exp() * torch.eye(net.key_size, device = self.config.editor_device), module_grad)
-    #             lamda_grad = - net.lamda(layer_idx).exp() * (mat * param_shift).sum()
-    #         value_diffs_grad = keys @ mat
-    #         (lamda_grad * net.lamda(layer_idx)).backward()
-    #         for start_idx in range(0, keys.shape[0], self.config.editor.batch_size):
-    #             end_idx = start_idx + self.config.editor.batch_size
-    #             pesudo_keys, pesudo_values_grad = net(
-    #                 keys[start_idx:end_idx],
-    #                 values_grad[start_idx:end_idx],
-    #                 layer_idx
-    #             )
-    #             coeffs = - net.lr(layer_idx) * (keys[start_idx:end_idx] * pesudo_keys).sum(-1).unsqueeze(-1)
-    #             value_diff = coeffs * pesudo_values_grad
-    #             (value_diffs_grad[start_idx:end_idx] * value_diff).sum().backward()
-            
-    #     clip_grad_norm_(
-    #         self.net.parameters(),
-    #         self.config.editor.max_grad_norm
-    #     )
-
-    #     if update == True:
-    #         self.opt.step()  
 
 
     def predict_param_shifts(self) -> Dict[str, torch.FloatTensor]:
@@ -190,7 +96,6 @@ class MALMEN(BaseEditor):
                 for idx in range(math.ceil(self.config.data.n_edits // self.config.data.batch_size))
             ])
             value_diffs = torch.empty((0, net.value_size), device = self.config.editor_device)
-            # print(f"kes.shape[0]: {keys.shape[0]}")
             for start_idx in range(0, keys.shape[0], self.config.editor.batch_size):
                 end_idx = start_idx + self.config.editor.batch_size
                 keys_once = pad_tensor(keys[start_idx:end_idx], self.config.editor.batch_size, 0)
@@ -202,7 +107,6 @@ class MALMEN(BaseEditor):
                         layer_idx,
                     )
                     coeffs = - net.lr(layer_idx) * (keys_once * pesudo_keys).sum(-1).unsqueeze(-1)
-                # print(f"value_diffs: {value_diffs.shape}")
                 value_diffs = torch.cat((value_diffs, coeffs * pesudo_values_grad))
             with torch.no_grad():
                 mat = keys.T @ keys + net.lamda(layer_idx).exp() * torch.eye(net.key_size, device=self.config.editor_device)
@@ -215,7 +119,6 @@ class MALMEN(BaseEditor):
         
     def update_hypernet(self, param_shifts: Dict[str, torch.FloatTensor], update: bool):
         
-        # self.opt.zero_grad()
         for module_idx, module_name in enumerate(self.config.model.edit_modules):
             shape = get_shape(get_module(self.model, module_name))
             net = self.net[str(shape)]

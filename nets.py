@@ -29,7 +29,7 @@ class RunningMeanStd(nn.Module):
         return (x - self.mean) / (self.std + torch.finfo(x.dtype).eps)
 
 
-class MALMENBlock(nn.Module):
+class RLEditBlock(nn.Module):
 
     def __init__(self, size: int, rank: int, n_modules: int):
         super().__init__()
@@ -60,7 +60,7 @@ class MALMENBlock(nn.Module):
         return x
 
 
-class MALMENNet(nn.Module):
+class RLEditNet(nn.Module):
 
     def __init__(
         self,
@@ -77,7 +77,7 @@ class MALMENNet(nn.Module):
 
         self.normalizer = RunningMeanStd(key_size + value_size)
         self.blocks = nn.ModuleList([
-            MALMENBlock(key_size + value_size, rank, n_modules)
+            RLEditBlock(key_size + value_size, rank, n_modules)
             for _ in range(n_blocks)
         ])
 

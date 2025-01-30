@@ -122,9 +122,6 @@ def succ_ratios(
             success = (label_probs > old_label_probs).to(torch.float32)
 
         if len(logits.shape) == 3:
-            # print(logits.shape)
-            # print(labels.shape)
-            # print(old_labels.shape)
 
             # valid_mask = (labels != -100) & (old_labels != -100)
             batch_size, seq_len, _ = logits.shape
@@ -162,12 +159,6 @@ def succ_ratios(
         # 计算每个样本中有效的 token 数量（忽略 -100 的部分）
         n_tokens = (labels != -100).sum(-1)
 
-        # print(f"n_corr: {n_corr}")
-        # print(f"n_tokens: {n_tokens}")
-
-        # print(n_corr)
-        # print(n_tokens)
-        # 返回每个样本的成功率
         return (n_corr / n_tokens).to("cpu").numpy().tolist()
 
 

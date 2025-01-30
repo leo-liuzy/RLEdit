@@ -1,9 +1,9 @@
 defaults:
 - _self_
 - data: zsre
-- model: llama-3
-- editor: newmalmen
-num_seq: 20
-mode: "train_seq"
+- model: llama-3-instruct
+- editor: malmen
+num_seq: 400
+mode: "reedit"
 model_device: cuda:0
 editor_device: cuda:0

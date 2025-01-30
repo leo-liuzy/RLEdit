@@ -7,7 +7,7 @@ import torch
 import torch.nn as nn
 from torch.nn.utils import clip_grad_norm_
 
-from nets import MALMENNet
+from nets import RLEditNet
 
 from editor.base import BaseEditor
 from util import get_module, get_shape
@@ -25,7 +25,7 @@ class MEND(BaseEditor):
             model
         )
         self.net = nn.ModuleDict({
-            str(k): MALMENNet(
+            str(k): RLEditNet(
                 *k,
                 config.editor.rank,
                 config.editor.n_blocks,
@@ -46,7 +46,7 @@ class MEND(BaseEditor):
     def reset_hypernet(self):
 
         self.net = nn.ModuleDict({
-            str(k): MALMENNet(
+            str(k): RLEditNet(
                 *k,
                 self.config.editor.rank,
                 self.config.editor.n_blocks,

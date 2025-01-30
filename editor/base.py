@@ -22,7 +22,7 @@ from safetensors.torch import save_file, load_file
 from glue_eval.glue_eval import GLUEEval
 import json
 
-from model import make_model, make_model_retrain
+from model import make_model
 from util import (
     get_module,
     get_shape,
@@ -50,13 +50,11 @@ class BaseEditor:
         self.name2idx = {}
         for module_name in config.model.edit_modules:
             shape = get_shape(get_module(model, module_name))
-            # print(f"shape: {shape}")
             self.name2idx[module_name] = shape_counter[shape]
             shape_counter[shape] += 1
         
         self.shape_counter = shape_counter
 
-        # 测试20个20个的持续编辑
         self.tuples_list = []
 
 
@@ -176,9 +174,8 @@ class BaseEditor:
                 "loc_loss": np.mean(loc_losses)
             })
 
-            if self.config.data.name == "zsre" or self.config.data.name == "counterfact":
-                if _ >= 100:
-                    break
+            if _ >= 100:
+                break
         
         if save:
             torch.save(self.net, "/root/autodl-tmp/hypernet_origin_malmen_1e6.pt")
@@ -191,7 +188,6 @@ class BaseEditor:
         """
 
         sequence_tuples = []
-        tot_loss, tot_loc_loss = 0, 0
 
         max_steps = self.config.num_seq
         limited_loader = islice(loader, max_steps)
@@ -220,14 +216,12 @@ class BaseEditor:
                 #loss.backward()
                 gen_losses.append(loss.item())
                 tot_loss_once += loss
-            tot_loss += tot_loss_once
                 # tot_loss += tot_loss_once
                 # gen_losses.append(tot_loss.item())
             tot_loss_once.backward()
             self.edit_model(param_shifts, True)
 
             loc_losses = []
-            tot_loc_loss = 0
             # for tup in sequence_tuples:
             tot_loc_loss_once = 0
             for t in tuples["unrel_tuples"]:
@@ -252,9 +246,190 @@ class BaseEditor:
                 tot_loc_loss_once += (self.config.editor.loc_coef * loss)
                 self.edit_model(param_shifts, True)
                 loc_losses += [loss.item()]
-            tot_loc_loss += tot_loc_loss_once
             
             # loc_losses.append(tot_loc_loss.item())
+            tot_loc_loss_once.backward()
+            self.edit_model(param_shifts, False)
+            self.update_hypernet(param_shifts, False)
+
+            wandb.log({
+                "gen_loss": np.mean(gen_losses),
+                "loc_loss": np.mean(loc_losses)
+            })
+
+        self.opt.step()
+        self.opt.zero_grad()
+        # tot_loss.backward()
+        # tot_loc_loss.backward()
+
+
+    def train_reedit_rethink(self, loader: DataLoader, save=False):
+        """
+        The training method for ReEdit.
+        Model the sequential editing as a Markov Devision Process, and use the Paradigm of Reinforce Learning to solve the question.
+        """
+
+        sequence_tuples = []
+
+        max_steps = self.config.num_seq
+        limited_loader = islice(loader, max_steps)
+
+        for _, tuples in enumerate(tqdm(limited_loader, desc="Train", ncols=100, total=max_steps)):
+
+            sequence_tuples.append(tuples)
+
+            self.cache(tuples["edit_tuples"])
+            param_shifts = self.predict_param_shifts()
+            self.model.zero_grad()
+
+            gen_losses = []
+            self.edit_model(param_shifts, False)
+            # for tup in sequence_tuples:
+            tot_loss_once = 0
+            lamda = 1
+            for i in range(len(sequence_tuples)-1, len(sequence_tuples)-1-10, -1):
+                tuple = sequence_tuples[i]
+            # for tuple in sequence_tuples[-10:]:
+                # lamda *= lamda
+                for t in tuple["equiv_tuples"]:
+                    if "old_labels" in t:
+                        old_labels = t.pop("old_labels")
+                    logits = self.model(**t)["logits"]
+                    try:
+                        t["old_labels"] = old_labels
+                    except:
+                        pass
+                    loss = cross_entropy(logits, t["labels"])
+                    #loss.backward()
+                    gen_losses.append(loss.item())
+                    tot_loss_once += loss * lamda
+                    # tot_loss += tot_loss_once
+                    # gen_losses.append(tot_loss.item())
+                lamda *= 0.95
+            tot_loss_once.backward()
+            self.edit_model(param_shifts, True)
+
+            loc_losses = []
+            # for tup in sequence_tuples:
+            tot_loc_loss_once = 0
+            lamda = 1.2
+            for tuple in sequence_tuples[-5:]:
+                lamda *= lamda
+                for t in tuple["unrel_tuples"]:
+                    if "old_labels" in t:
+                        old_labels = t.pop("old_labels")
+                    with torch.no_grad():
+                        refer_logits = self.model(**t)["logits"]
+                    
+                    self.edit_model(param_shifts, False)
+                    logits = self.model(**t)["logits"]
+                    try:
+                        t["old_labels"] = old_labels
+                    except:
+                        pass
+                    loss = kl_div(
+                        refer_logits,
+                        logits,
+                        t["labels"]
+                    )
+                    #(self.config.editor.loc_coef * loss).backward()
+                    tot_loc_loss_once += (self.config.editor.loc_coef * loss) * lamda
+                    self.edit_model(param_shifts, True)
+                    loc_losses += [loss.item()]
+            
+            # loc_losses.append(tot_loc_loss.item())
+            tot_loc_loss_once.backward()
+            self.edit_model(param_shifts, False)
+            self.update_hypernet(param_shifts, False)
+
+            wandb.log({
+                "gen_loss": np.mean(gen_losses),
+                "loc_loss": np.mean(loc_losses)
+            })
+
+        self.opt.step()
+        self.opt.zero_grad()
+        # tot_loss.backward()
+        # tot_loc_loss.backward()
+
+
+    def train_reedit_L2(self, loader: DataLoader, save=False):
+        """
+        The training method for ReEdit.
+        Model the sequential editing as a Markov Devision Process, and use the Paradigm of Reinforce Learning to solve the question.
+        """
+
+        sequence_tuples = []
+
+        max_steps = self.config.num_seq
+        limited_loader = islice(loader, max_steps)
+
+        for _, tuples in enumerate(tqdm(limited_loader, desc="Train", ncols=100, total=max_steps)):
+
+            sequence_tuples.append(tuples)
+
+            self.cache(tuples["edit_tuples"])
+            param_shifts = self.predict_param_shifts()
+            self.model.zero_grad()
+
+            gen_losses = []
+            self.edit_model(param_shifts, False)
+            # for tup in sequence_tuples:
+            tot_loss_once = 0
+            for t in tuples["equiv_tuples"]:
+                if "old_labels" in t:
+                    old_labels = t.pop("old_labels")
+                logits = self.model(**t)["logits"]
+                try:
+                    t["old_labels"] = old_labels
+                except:
+                    pass
+                loss = cross_entropy(logits, t["labels"])
+                #loss.backward()
+                gen_losses.append(loss.item())
+                tot_loss_once += loss
+                # tot_loss += tot_loss_once
+                # gen_losses.append(tot_loss.item())
+
+            # L2 Regularization
+            l2_reg_loss = 0
+            for _, param_shift in param_shifts.items():
+                l2_reg_loss += torch.sum(param_shift ** 2)  # L2 norm of parameter shift
+            l2_reg_loss *= self.config.editor.reg_coef
+            tot_loss_once += l2_reg_loss
+
+            tot_loss_once.backward()
+            self.edit_model(param_shifts, True)
+
+            loc_losses = []
+            # for tup in sequence_tuples:
+            tot_loc_loss_once = 0
+            for t in tuples["unrel_tuples"]:
+
+                if "old_labels" in t:
+                    old_labels = t.pop("old_labels")
+                with torch.no_grad():
+                    refer_logits = self.model(**t)["logits"]
+                
+                self.edit_model(param_shifts, False)
+                logits = self.model(**t)["logits"]
+                try:
+                    t["old_labels"] = old_labels
+                except:
+                    pass
+                loss = kl_div(
+                    refer_logits,
+                    logits,
+                    t["labels"]
+                )
+                #(self.config.editor.loc_coef * loss).backward()
+                tot_loc_loss_once += (self.config.editor.loc_coef * loss)
+                self.edit_model(param_shifts, True)
+                loc_losses += [loss.item()]
+            
+            # L2 Regularization
+            tot_loc_loss_once += l2_reg_loss
+
             tot_loc_loss_once.backward()
             self.edit_model(param_shifts, False)
             self.update_hypernet(param_shifts, False)
@@ -528,7 +703,8 @@ class BaseEditor:
             self.tuples_list.append(tuples)
             self.opt.zero_grad()
 
-            if _ == 20 or _ == 30 or _ == 50 or _ == 100:
+            # if _ == 20 or _ == 30 or _ == 50 or _ == 100:
+            if _ == 20 or _ == 100:
                 edit_succs, gen_succs, loc_succs = [], [], []
                 for k, s in zip(
                     ["edit_tuples", "equiv_tuples", "unrel_tuples"],
@@ -813,6 +989,56 @@ class BaseEditor:
         self.reset_hypernet()
 
 
+    def run_L2(self, train_loader: DataLoader, valid_loader: DataLoader):
+        """
+        Use ReEdit to complete sequential editing task.
+        """
+        
+        for _ in tqdm(range(self.config.editor.n_epochs), desc = "epoch"):
+
+            self.reset_model()
+            self.train_reedit_L2(train_loader)
+
+            self.reset_model()
+            if self.config.editor.save_checkpoint:
+                torch.save(self.net.state_dict(), f"checkpoints/{self.config.model.name}_{self.config.editor.name}_{str(self.config.data.n_edits)}_net.pth")
+                torch.save(self.opt.state_dict(), f"checkpoints/{self.config.model.name}_{self.config.editor.name}_{str(self.config.data.n_edits)}_opt.pth")
+                print("-----Saved checkpoints-----")
+                
+            if self.config.editor.full_curve == True:
+                self.sequential_valid_full(valid_loader)
+            else:
+                self.sequential_valid(valid_loader)
+
+            empty_cache(self.config.editor.cache_dir, self.config)
+        self.reset_hypernet()
+
+    
+    def run_rethink(self, train_loader: DataLoader, valid_loader: DataLoader):
+        """
+        Use ReEdit to complete sequential editing task.
+        """
+        
+        for _ in tqdm(range(self.config.editor.n_epochs), desc = "epoch"):
+
+            self.reset_model()
+            self.train_reedit_rethink(train_loader)
+
+            self.reset_model()
+            if self.config.editor.save_checkpoint:
+                torch.save(self.net.state_dict(), f"checkpoints/{self.config.model.name}_{self.config.editor.name}_{str(self.config.data.n_edits)}_net.pth")
+                torch.save(self.opt.state_dict(), f"checkpoints/{self.config.model.name}_{self.config.editor.name}_{str(self.config.data.n_edits)}_opt.pth")
+                print("-----Saved checkpoints-----")
+                
+            if self.config.editor.full_curve == True:
+                self.sequential_valid_full(valid_loader)
+            else:
+                self.sequential_valid(valid_loader)
+
+            empty_cache(self.config.editor.cache_dir, self.config)
+        self.reset_hypernet()
+
+
     def run_test(self, valid_loader: DataLoader):
         """
         Just include valid process, which needs you saving the hypernet locally.
@@ -858,7 +1084,6 @@ class BaseEditor:
                                 pass
                             if self.config.data.name == "counterfact":
                                 t["old_labels"] = old_labels
-                                # print(f"logits.shape = {logits.shape}")
                                 s += succ_ratios(logits, t["labels"], t["old_labels"])
                             else:
                                 s += succ_ratios(logits, t["labels"])
@@ -886,7 +1111,6 @@ class BaseEditor:
                         pass
                     if self.config.data.name == "counterfact":
                         t["old_labels"] = old_labels
-                        # print(f"logits.shape = {logits.shape}")
                         s += succ_ratios(logits, t["labels"], t["old_labels"])
                     else:
                         s += succ_ratios(logits, t["labels"])
