@@ -1,5 +1,0 @@
-name: zsre
-n_edits: 20
-batch_size: 4
-train_path: data/dsets/zsre/zsre_train.json
-valid_path: data/dsets/zsre/zsre_eval.json

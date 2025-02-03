@@ -3,15 +3,15 @@ import json
 
 # sys.path.append('/data/ruip/NewMend/')
 
-from sst_eval import SSTEval
-from mrpc_eval import MRPCEval
-from cola_eval import COLAEval
-from rte_eval import RTEEval
-from mmlu_eval import MMLUEval
-from sentiment_analysis_eval import SENTIMENT_ANALYSIS_Eval
-from dialogue_eval import DIALOGUE_Eval
-from nli_eval import NLIEval
-from utils import perplexity
+from glue_eval.sst_eval import SSTEval
+from glue_eval.mrpc_eval import MRPCEval
+from glue_eval.cola_eval import COLAEval
+from glue_eval.rte_eval import RTEEval
+from glue_eval.mmlu_eval import MMLUEval
+from glue_eval.sentiment_analysis_eval import SENTIMENT_ANALYSIS_Eval
+from glue_eval.dialogue_eval import DIALOGUE_Eval
+from glue_eval.nli_eval import NLIEval
+from glue_eval.utils import perplexity
 from datasets import load_dataset
 
 

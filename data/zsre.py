@@ -1,5 +1,4 @@
 from typing import Dict
-
 import torch
 
 from data.base import BaseDataset
@@ -9,7 +8,6 @@ class ZSREDataset(BaseDataset):
     
     def __getitem__(self, idx) -> Dict[str, Dict[str, torch.LongTensor]]:
         row = self.data[idx]
-        
         prompt = row["src"]
         equiv_prompt = row["rephrase"]
         answer = row["ans"]
@@ -22,6 +20,7 @@ class ZSREDataset(BaseDataset):
             "unrel_tuples": self.tok_tuples(unrel_prompt, unrel_answer)
         }
         
+
     def tok_tuples(
         self,
         prompt: str,
@@ -29,7 +28,6 @@ class ZSREDataset(BaseDataset):
     ) -> Dict[str, torch.LongTensor]:
 
         answer = " " + answer
-            
         tok_prompt = self.tok(
             prompt,
             return_tensors="pt",

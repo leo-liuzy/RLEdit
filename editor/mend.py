@@ -12,6 +12,13 @@ from nets import RLEditNet
 from editor.base import BaseEditor
 from util import get_module, get_shape
 
+from nets import RLEditNet
+
+from util import (
+    get_module,
+    get_shape,
+)
+
 
 class MEND(BaseEditor):
 
@@ -40,8 +47,9 @@ class MEND(BaseEditor):
             config.editor.meta_lr
         )
         if config.editor.load_checkpoint:
-            self.net.load_state_dict(torch.load(f"checkpoints/{config.model.name}_{config.editor.name}_{str(config.data.n_edits)}_net.pth"))
-            self.opt.load_state_dict(torch.load(f"checkpoints/{config.model.name}_{config.editor.name}_{str(config.data.n_edits)}_opt.pth"))
+            self.net.load_state_dict(torch.load(f"checkpoints/{config.model.name}_{config.editor.name}_{str(config.dataset.n_edits)}_net.pth"))
+            self.opt.load_state_dict(torch.load(f"checkpoints/{config.model.name}_{config.editor.name}_{str(config.dataset.n_edits)}_opt.pth"))
+
 
     def reset_hypernet(self):
 
@@ -61,6 +69,7 @@ class MEND(BaseEditor):
             self.config.editor.meta_lr
         )
 
+
     def predict_param_shifts(self) -> Dict[str, torch.FloatTensor]:
         
         param_shifts = {}
@@ -70,9 +79,9 @@ class MEND(BaseEditor):
             net = self.net[str(shape)]
             layer_idx = torch.LongTensor([self.name2idx[module_name]]).to(self.config.editor_device)
             param_shift = torch.zeros((net.key_size, net.value_size), device=self.config.editor_device)
-            for idx in range(math.ceil(self.config.data.n_edits / self.config.data.batch_size)):
-                keys = torch.load(f"{self.config.editor.cache_dir}/{self.config.model.name}_{self.config.editor.name}_{self.config.data.n_edits}/{module_idx}_{idx}_keys.pth")
-                values_grad = torch.load(f"{self.config.editor.cache_dir}/{self.config.model.name}_{self.config.editor.name}_{self.config.data.n_edits}/{module_idx}_{idx}_values_grad.pth")
+            for idx in range(math.ceil(self.config.dataset.n_edits / self.config.dataset.batch_size)):
+                keys = torch.load(f"{self.config.editor.cache_dir}/{self.config.model.name}_{self.config.editor.name}_{self.config.dataset.n_edits}/{module_idx}_{idx}_keys.pth")
+                values_grad = torch.load(f"{self.config.editor.cache_dir}/{self.config.model.name}_{self.config.editor.name}_{self.config.dataset.n_edits}/{module_idx}_{idx}_values_grad.pth")
                 with torch.no_grad():
                     pesudo_keys, pesudo_values_grad = net(keys, values_grad, layer_idx)
                     param_shift += - net.lr(layer_idx) * pesudo_keys.T @ pesudo_values_grad
@@ -92,9 +101,9 @@ class MEND(BaseEditor):
             module_grad = module.weight.grad.to(torch.float32)
             if isinstance(module, nn.Linear):
                 module_grad = module_grad.T
-            for idx in range(math.ceil(self.config.data.n_edits / self.config.data.batch_size)):
-                keys = torch.load(f"{self.config.editor.cache_dir}/{self.config.model.name}_{self.config.editor.name}_{self.config.data.n_edits}/{module_idx}_{idx}_keys.pth")
-                values_grad = torch.load(f"{self.config.editor.cache_dir}/{self.config.model.name}_{self.config.editor.name}_{self.config.data.n_edits}/{module_idx}_{idx}_values_grad.pth")
+            for idx in range(math.ceil(self.config.dataset.n_edits / self.config.dataset.batch_size)):
+                keys = torch.load(f"{self.config.editor.cache_dir}/{self.config.model.name}_{self.config.editor.name}_{self.config.dataset.n_edits}/{module_idx}_{idx}_keys.pth")
+                values_grad = torch.load(f"{self.config.editor.cache_dir}/{self.config.model.name}_{self.config.editor.name}_{self.config.dataset.n_edits}/{module_idx}_{idx}_values_grad.pth")
                 pesudo_keys, pesudo_values_grad = net(keys, values_grad, layer_idx)
                 param_shift = - net.lr(layer_idx) * pesudo_keys.T @ pesudo_values_grad
                 (module_grad * param_shift).sum().backward()

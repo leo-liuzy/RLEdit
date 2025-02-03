@@ -6,17 +6,27 @@ import math
 import torch
 import torch.nn as nn
 from torch.nn.utils import clip_grad_norm_
+from torch.utils.data import DataLoader
 
 from nets import RLEditNet
 
 from editor.base import BaseEditor
 from util import get_module, get_shape
 
+import numpy as np
 from nets import RLEditNet
+
+from itertools import islice
+
+from tqdm import tqdm
+import wandb
 
 from util import (
     get_module,
     get_shape,
+    empty_cache,
+    cross_entropy,
+    kl_div,
 )
 
 
@@ -35,7 +45,7 @@ def pad_tensor(tensor, target_length, dim=0, padding_value=0):
         return torch.cat([tensor, pad_tensor], dim=dim)
 
 
-class MALMEN(BaseEditor):
+class RLEDIT(BaseEditor):
 
     def __init__(
         self,
@@ -84,6 +94,102 @@ class MALMEN(BaseEditor):
             self.net.parameters(),
             self.config.editor.meta_lr
         )
+
+
+    def train(self, loader: DataLoader, save=False):
+        """
+        The training method for RLEdit.
+        Model the sequential editing as a Markov Devision Process, and use the Paradigm of Reinforce Learning to solve the question.
+        """
+
+        sequence_tuples = []
+        max_steps = self.config.num_seq
+        time_decay = self.config.editor.time_decay
+
+        limited_loader = islice(loader, max_steps)
+
+        for _, tuples in enumerate(tqdm(limited_loader, desc="Train", ncols=100, total=max_steps)):
+
+            sequence_tuples.append(tuples)
+            self.cache(tuples["edit_tuples"])
+            param_shifts = self.predict_param_shifts()
+            self.model.zero_grad()
+
+            l2_reg_loss = 0
+            for _, param_shift in param_shifts.items():
+                l2_reg_loss += torch.sum(param_shift ** 2)
+            l2_reg_loss *= self.config.editor.reg_coef
+
+            gen_losses_show = []
+            self.edit_model(param_shifts, False)
+            tot_loss_e = 0
+
+            for _, tuple in enumerate(reversed(sequence_tuples)):
+                loss_e = 0
+                for t in tuple["equiv_tuples"]:
+                    if "old_labels" in t:
+                        old_labels = t.pop("old_labels")
+                    logits = self.model(**t)["logits"]
+                    try:
+                        t["old_labels"] = old_labels
+                    except:
+                        pass
+                    loss = cross_entropy(logits, t["labels"])
+                    loss_e += loss
+                gen_losses_show.append(loss_e.item())
+                tot_loss_e += (loss_e * pow(time_decay, _))
+
+                if _+1 >= self.config.editor.back_depth:
+                    break
+
+            tot_loss_e += l2_reg_loss
+            tot_loss_e.backward()
+            self.edit_model(param_shifts, True)
+
+            loc_losses_show = []
+            tot_loss_loc = 0
+
+            for _, tuple in enumerate(reversed(sequence_tuples)):
+                loss_loc = 0
+                for t in tuple["unrel_tuples"]:
+                    if "old_labels" in t:
+                        old_labels = t.pop("old_labels")
+                    with torch.no_grad():
+                        refer_logits = self.model(**t)["logits"]
+                    self.edit_model(param_shifts, False)
+                    logits = self.model(**t)["logits"]
+                    try:
+                        t["old_labels"] = old_labels
+                    except:
+                        pass
+                    loss = kl_div(
+                        refer_logits,
+                        logits,
+                        t["labels"]
+                    )
+                    loss_loc += (self.config.editor.loc_coef * loss)
+                    self.edit_model(param_shifts, True)
+                loc_losses_show += [loss_loc.item()]
+                tot_loss_loc += (loss_loc * pow(time_decay, _))
+
+                if _+1 >= self.config.editor.back_depth:
+                    break
+
+            tot_loss_loc.backward()
+            self.edit_model(param_shifts, False)
+
+            self.update_hypernet(param_shifts, False)
+
+            wandb.log({
+                "gen_loss": np.mean(gen_losses_show),
+                "loc_loss": np.mean(loc_losses_show)
+            })
+
+        self.opt.step()
+        self.opt.zero_grad()
+
+        if save:
+            torch.save(self.net, f"checkpoints/hypernet.pt")
 
 
     def predict_param_shifts(self) -> Dict[str, torch.FloatTensor]:
@@ -170,3 +276,29 @@ class MALMEN(BaseEditor):
         if update == True:
             self.opt.step()
             self.opt.zero_grad()
+
+
+    def run(self, train_loader: DataLoader, valid_loader: DataLoader):
+        """
+        Use RLEdit to complete sequential editing task.
+        """
+        
+        for _ in tqdm(range(self.config.editor.n_epochs), desc = "epoch"):
+
+            self.train(train_loader)
+            self.reset_model()
+
+            if self.config.editor.save_checkpoint:
+                torch.save(self.net.state_dict(), f"checkpoints/{self.config.model.name}_{self.config.editor.name}_{str(self.config.dataset.n_edits)}_net.pth")
+                torch.save(self.opt.state_dict(), f"checkpoints/{self.config.model.name}_{self.config.editor.name}_{str(self.config.dataset.n_edits)}_opt.pth")
+                print("-----Saved checkpoints-----")
+                
+            if self.config.editor.full_curve == True:
+                self.sequential_valid_full(valid_loader)
+            else:
+                self.sequential_valid(valid_loader)
+
+            empty_cache(self.config.editor.cache_dir, self.config)
+            self.reset_model()
+
+        self.reset_hypernet()

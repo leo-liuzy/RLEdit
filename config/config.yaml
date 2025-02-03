@@ -1,9 +1,8 @@
 defaults:
 - _self_
-- data: zsre
+- dataset: zsre
 - model: llama-3-instruct
 - editor: malmen
 num_seq: 400
-mode: "reedit"
 model_device: cuda:0
 editor_device: cuda:0

@@ -1,5 +1,7 @@
 import os
-# os.environ['CUDA_VISIBLE_DEVICES'] =  '6'
+
+# You can specify the GPU you are using here
+os.environ['CUDA_VISIBLE_DEVICES'] =  '0'
 
 from omegaconf import DictConfig
 
@@ -10,23 +12,6 @@ import transformers
 from transformers import AutoModel
 
 from util import get_module
-
-class AutoModelForFEVER(nn.Module):
-
-    def __init__(self, name_or_path: str):
-        super().__init__()
-
-        self.backbone = AutoModel.from_pretrained(name_or_path)
-        self.classifier = nn.Linear(self.backbone.config.hidden_size, 1)
-
-    def forward(self, **kwargs):
-
-        hidden_states = self.backbone(**{
-            k: v for k, v in kwargs.items() if k != "labels"
-        })["last_hidden_state"][:, 0]
-        logits = self.classifier(hidden_states)
-        
-        return {"logits": logits}
 
 
 def make_model(config: DictConfig):

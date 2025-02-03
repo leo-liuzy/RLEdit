@@ -1,17 +1,15 @@
 from typing import Dict
-
 import random
-
 import torch
 
 from data.base import BaseDataset
+
 
 
 class FEVERDataset(BaseDataset):
 
     def __getitem__(self, idx) -> Dict[str, Dict[str, torch.LongTensor]]:
         row = self.data[idx]
-
         prompt = row["prompt"]
         equiv_prompt = random.choice(row["equiv_prompt"])
         unrel_prompt = row["unrel_prompt"]
@@ -30,16 +28,6 @@ class FEVERDataset(BaseDataset):
         prompt: str,
         answer: str
     ) -> Dict[str, torch.LongTensor]:
-            
-        tok_prompt = self.tok(
-            prompt,
-            return_tensors = "pt",
-        )
-        tok_answer = self.tok(
-            answer,
-            return_tensors = "pt",
-            add_special_tokens = False
-        )
 
         answer = " " + answer
             
@@ -57,7 +45,6 @@ class FEVERDataset(BaseDataset):
             key: torch.cat((value, tok_answer[key][:, :-1]), -1)
             for key, value in tok_prompt.items()
         }
-            
         tok_tuples["labels"] = torch.cat((
             torch.full(tok_prompt["input_ids"].shape, -100)[:, 1:],
             tok_answer["input_ids"]
