@@ -1,1 +1,1 @@
-python main.py dataset=fever model=llama-3-instruct editor=rledit num_seq=20
+python main.py dataset=zsre model=llama-3-instruct editor=rledit num_seq=400
