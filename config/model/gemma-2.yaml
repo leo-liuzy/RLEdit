@@ -1,4 +1,4 @@
-name_or_path: /NAS/ruip/Gemma-2-9B-it
+name_or_path: your_model_path
 name: gemma-2
 model_vec_size: 17920
 class_name: AutoModelForCausalLM

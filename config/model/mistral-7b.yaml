@@ -1,4 +1,4 @@
-name_or_path: /NAS/ruip/Mistral-7B-Instruct-v0.3
+name_or_path: your_model_path
 name: mistral-7b
 model_vec_size: 18432
 class_name: AutoModelForCausalLM
