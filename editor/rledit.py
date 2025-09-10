@@ -126,6 +126,7 @@ class RLEDIT(BaseEditor):
 
             for _, tuple in enumerate(reversed(sequence_tuples)):
                 loss_e = 0
+                import pdb; pdb.set_trace()
                 for t in tuple["equiv_tuples"]:
                     if "old_labels" in t:
                         old_labels = t.pop("old_labels")

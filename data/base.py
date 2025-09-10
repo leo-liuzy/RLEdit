@@ -34,6 +34,7 @@ class BaseDataset(Dataset):
         self,
         tuples: Tuple[Dict[str, Dict[str, torch.LongTensor]]]
     ) -> Dict[str, List[Dict[str, torch.LongTensor]]]:
+        import pdb; pdb.set_trace()
         tuples: Dict[str, List[Dict[str, torch.LongTensor]]] = {
             k: sorted(
                 [t[k] for t in tuples],

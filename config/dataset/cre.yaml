@@ -1,0 +1,5 @@
+name: cre
+n_edits: 5
+batch_size: 5
+train_path: data/raw/ctrlRE/train_4K.json
+valid_path: data/raw/ctrlRE/eval_4K.json

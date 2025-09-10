@@ -1,7 +1,7 @@
 import os
 
 # You can specify the GPU you are using here
-os.environ['CUDA_VISIBLE_DEVICES'] =  '0'
+# os.environ['CUDA_VISIBLE_DEVICES'] =  '0'
 
 from omegaconf import DictConfig
 
