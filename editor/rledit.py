@@ -111,6 +111,7 @@ class RLEDIT(BaseEditor):
         for _, tuples in enumerate(tqdm(limited_loader, desc="Train", ncols=100, total=max_steps)):
 
             sequence_tuples.append(tuples)
+            # import pdb; pdb.set_trace()
             self.cache(tuples["edit_tuples"])
             param_shifts = self.predict_param_shifts()
             self.model.zero_grad()
@@ -126,11 +127,12 @@ class RLEDIT(BaseEditor):
 
             for _, tuple in enumerate(reversed(sequence_tuples)):
                 loss_e = 0
-                import pdb; pdb.set_trace()
+                
                 for t in tuple["equiv_tuples"]:
                     if "old_labels" in t:
                         old_labels = t.pop("old_labels")
                     logits = self.model(**t)["logits"]
+
                     try:
                         t["old_labels"] = old_labels
                     except:
