@@ -1,2 +1,3 @@
 # CUDA_VISIBLE_DEVICES=7 python main.py dataset=cre model=llama-3.2-instruct editor=rledit num_seq=400
-CUDA_VISIBLE_DEVICES=7 python main.py dataset=zsre model=llama-3.2-instruct editor=rledit num_seq=400
+CUDA_VISIBLE_DEVICES=5 python main.py dataset=cre model=llama3.2-1B-eos-sft-template-format-curated-v1-lr2e-6-sample-10-4-15 editor=rledit num_seq=200 editor.n_epochs=20 dataset.n_edits=1 dataset.batch_size=1 # editor.cache_dir=cache2
+# CUDA_VISIBLE_DEVICES=7 python main.py dataset=zsre model=llama-3.2-instruct editor=rledit num_seq=400

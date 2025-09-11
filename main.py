@@ -1,3 +1,4 @@
+import os
 import hydra
 from omegaconf import DictConfig, OmegaConf
 import importlib
@@ -10,10 +11,10 @@ import wandb
 def main(config: DictConfig):
     
     wandb.init(
-        project = f"{config.dataset.name}_{config.model.name}",
+        project = f"{config.dataset.name}_{os.path.basename(config.model.name)}",
         name = f"{config.editor.name}_{str(config.dataset.n_edits)}",
         config = OmegaConf.to_container(config, resolve = True),
-        mode="offline"
+        # mode="offline"
     )
     
     data_module = importlib.import_module(f"data.{config.dataset.name}")

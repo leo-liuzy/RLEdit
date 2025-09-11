@@ -94,7 +94,7 @@ class BaseEditor:
                 keys = tr[module_name].keys.to(torch.float32).to(self.config.editor_device)
                 values_grad = tr[module_name].values_grad.to(torch.float32).to(self.config.editor_device)
                 self.net[str(shape)].normalizer.update(torch.cat((keys, values_grad), -1))
-                dir_path = f"{self.config.editor.cache_dir}/{self.config.model.name}_{self.config.editor.name}_{self.config.dataset.n_edits}"
+                dir_path = f"{self.config.editor.cache_dir}/{self.config.model.name}_{self.config.editor.name}_{self.config.dataset.n_edits}_ep={self.config.editor.n_epochs}"
                 if not os.path.exists(dir_path):
                     os.makedirs(dir_path)
                 torch.save(keys, f"{dir_path}/{module_idx}_{idx}_keys.pth")

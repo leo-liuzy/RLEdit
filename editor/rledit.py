@@ -204,11 +204,11 @@ class RLEDIT(BaseEditor):
             net = self.net[str(shape)]
             layer_idx = torch.LongTensor([self.name2idx[module_name]]).to(self.config.editor_device)
             keys = torch.cat([
-                torch.load(f"{self.config.editor.cache_dir}/{self.config.model.name}_{self.config.editor.name}_{self.config.dataset.n_edits}/{module_idx}_{idx}_keys.pth")
+                torch.load(f"{self.config.editor.cache_dir}/{self.config.model.name}_{self.config.editor.name}_{self.config.dataset.n_edits}_ep={self.config.editor.n_epochs}/{module_idx}_{idx}_keys.pth")
                 for idx in range(math.ceil(self.config.dataset.n_edits / self.config.dataset.batch_size))
             ])
             values_grad = torch.cat([
-                torch.load(f"{self.config.editor.cache_dir}/{self.config.model.name}_{self.config.editor.name}_{self.config.dataset.n_edits}/{module_idx}_{idx}_values_grad.pth")
+                torch.load(f"{self.config.editor.cache_dir}/{self.config.model.name}_{self.config.editor.name}_{self.config.dataset.n_edits}_ep={self.config.editor.n_epochs}/{module_idx}_{idx}_values_grad.pth")
                 for idx in range(math.ceil(self.config.dataset.n_edits // self.config.dataset.batch_size))
             ])
             value_diffs = torch.empty((0, net.value_size), device = self.config.editor_device)
@@ -240,11 +240,11 @@ class RLEDIT(BaseEditor):
             net = self.net[str(shape)]
             layer_idx = torch.LongTensor([self.name2idx[module_name]]).to(self.config.editor_device)
             keys = torch.cat([
-                torch.load(f"{self.config.editor.cache_dir}/{self.config.model.name}_{self.config.editor.name}_{self.config.dataset.n_edits}/{module_idx}_{idx}_keys.pth")
+                torch.load(f"{self.config.editor.cache_dir}/{self.config.model.name}_{self.config.editor.name}_{self.config.dataset.n_edits}_ep={self.config.editor.n_epochs}/{module_idx}_{idx}_keys.pth")
                 for idx in range(math.ceil(self.config.dataset.n_edits / self.config.dataset.batch_size))
             ])
             values_grad = torch.cat([
-                torch.load(f"{self.config.editor.cache_dir}/{self.config.model.name}_{self.config.editor.name}_{self.config.dataset.n_edits}/{module_idx}_{idx}_values_grad.pth")
+                torch.load(f"{self.config.editor.cache_dir}/{self.config.model.name}_{self.config.editor.name}_{self.config.dataset.n_edits}_ep={self.config.editor.n_epochs}/{module_idx}_{idx}_values_grad.pth")
                 for idx in range(math.ceil(self.config.dataset.n_edits / self.config.dataset.batch_size))
             ])
             module = get_module(self.model, module_name)
@@ -292,8 +292,8 @@ class RLEDIT(BaseEditor):
             self.reset_model()
 
             if self.config.editor.save_checkpoint:
-                torch.save(self.net.state_dict(), f"checkpoints/{self.config.model.name}_{self.config.editor.name}_{str(self.config.dataset.n_edits)}_net.pth")
-                torch.save(self.opt.state_dict(), f"checkpoints/{self.config.model.name}_{self.config.editor.name}_{str(self.config.dataset.n_edits)}_opt.pth")
+                torch.save(self.net.state_dict(), f"checkpoints/{self.config.model.name}_{self.config.editor.name}_{str(self.config.dataset.n_edits)}_ep{self.config.editor.n_epochs}_net.pth")
+                torch.save(self.opt.state_dict(), f"checkpoints/{self.config.model.name}_{self.config.editor.name}_{str(self.config.dataset.n_edits)}_ep{self.config.editor.n_epochs}_opt.pth")
                 print("-----Saved checkpoints-----")
                 
             if self.config.editor.full_curve == True:
