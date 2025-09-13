@@ -198,6 +198,7 @@ class RLEDIT(BaseEditor):
     def predict_param_shifts(self) -> Dict[str, torch.FloatTensor]:
         
         param_shifts = {}
+        # import pdb; pdb.set_trace()
         for module_idx, module_name in enumerate(self.config.model.edit_modules):
 
             shape = get_shape(get_module(self.model, module_name))
@@ -295,7 +296,7 @@ class RLEDIT(BaseEditor):
                 torch.save(self.net.state_dict(), f"checkpoints/{self.config.model.name}_{self.config.editor.name}_{str(self.config.dataset.n_edits)}_ep{self.config.editor.n_epochs}_net.pth")
                 torch.save(self.opt.state_dict(), f"checkpoints/{self.config.model.name}_{self.config.editor.name}_{str(self.config.dataset.n_edits)}_ep{self.config.editor.n_epochs}_opt.pth")
                 print("-----Saved checkpoints-----")
-                
+            # import pdb; pdb.set_trace()               
             if self.config.editor.full_curve == True:
                 self.sequential_valid_full(valid_loader)
             else:

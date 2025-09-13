@@ -2,6 +2,7 @@ from typing import Union, Tuple, List, Dict
 import torch
 import math
 from data.base import BaseDataset
+import numpy as np
 
 
 class CREDataset(BaseDataset):
@@ -89,7 +90,9 @@ class CREDataset(BaseDataset):
         tuples: Tuple[Dict[str, Dict[str, torch.LongTensor]]]
     ) -> Dict[str, List[Dict[str, torch.LongTensor]]]:
         
-        # import pdb; pdb.set_trace()
+        
+        # TODO: edit this
+        # first process edit_tuples and unrel_tuples as normal
         collated_tuples: Dict[str, List[Dict[str, torch.LongTensor]]] = {
             k: sorted(
                 [t[k] for t in tuples],
@@ -98,14 +101,24 @@ class CREDataset(BaseDataset):
             )
             for k in ["edit_tuples", "unrel_tuples"]
         }
-        collated_tuples["equiv_tuples"] = [qa for t in tuples for qa in t["equiv_tuples"]]
-        assert self.config.n_edits == self.config.batch_size, "Unhandled scenario: n_edits != batch_size"
-        
         ret = {
             k: [
-                self.pad_tok_tuples(v[:])
+                self.pad_tok_tuples(v[n_batch * self.config.batch_size:(n_batch + 1) * self.config.batch_size])
+                for n_batch in range(math.ceil(self.config.n_edits / self.config.batch_size))
             ]
             for k, v in collated_tuples.items()
         }
+        # process propagation questions since there are multiple(variable) qa per text
+        order = np.argsort([t["edit_tuples"]["attention_mask"].sum().item() for t in tuples])[::-1]
+        
+        collated_tuples["equiv_tuples"] = [tuples[i]["equiv_tuples"] for i in order]
+        
+        tmp = []
+        for n_batch in range(math.ceil(self.config.n_edits / self.config.batch_size)):
+            batch_equiv_tuples = collated_tuples["equiv_tuples"][n_batch * self.config.batch_size:(n_batch + 1) * self.config.batch_size]
+            tmp.append(
+                self.pad_tok_tuples([qa for t in batch_equiv_tuples for qa in t])
+            )
+        ret["equiv_tuples"] = tmp
         # import pdb; pdb.set_trace()
         return ret
