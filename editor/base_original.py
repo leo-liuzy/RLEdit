@@ -99,8 +99,7 @@ class BaseEditor:
                     os.makedirs(dir_path)
                 torch.save(keys, f"{dir_path}/{module_idx}_{idx}_keys.pth")
                 torch.save(values_grad, f"{dir_path}/{module_idx}_{idx}_values_grad.pth")
-                del keys, values_grad
-                torch.cuda.empty_cache()
+
             try:
                 t["old_labels"] = old_labels
             except:
@@ -255,75 +254,66 @@ class BaseEditor:
 
             self.opt.zero_grad()
 
-    def sequential_valid(self, loader: DataLoader, n_instances=200):
+
+    def sequential_valid(self, loader: DataLoader):
         """
         Valid the entire knowledge sequence, with just final results showed.
         """
+    
+        max_steps = self.config.num_seq
+        limited_loader = islice(loader, max_steps)
 
-        n_repeat = n_instances // self.config.num_seq // self.config.dataset.n_edits
-        
-        ES_means = []
-        GS_means = []
-        LS_means = []
-        for i in tqdm(range(n_repeat), desc="Valid"):
-            max_steps = self.config.num_seq
-            limited_loader = islice(loader, max_steps)
+        for _, tuples in enumerate(tqdm(limited_loader, desc="Valid", ncols=100, total=max_steps)):
 
-            for _, tuples in enumerate(tqdm(limited_loader, ncols=100, total=max_steps)):
+            if self.config.glue_step > 0:
+                if _ == 0 or (_+1) % self.config.glue_step == 0:
+                    tokenizer = AutoTokenizer.from_pretrained(self.config.model.name_or_path)
+                    glue_eval = GLUEEval(self.model, tokenizer, number_of_tests = 100)
+                    out_file = f"glue_eval/results/{self.config.model.name}_{_}_{self.config.dataset.name}"
+                    if not os.path.exists(out_file):
+                        os.makedirs(out_file, exist_ok=True)
+                    out_file = f"glue_eval/results/{self.config.model.name}_{_}_{self.config.dataset.name}/glue.json"
+                    glue_results = {'edit_num': -1}
+                    glue_results = glue_eval.evaluate(glue_results, out_file, nli_flag = True, sst_flag = True, cola_flag=True, rte_flag=True, mmlu_flag = True, mrpc_flag = True)
+                    with open(out_file, "w") as f:
+                        json.dump(glue_results, f, indent=4)
 
-                if self.config.glue_step > 0:
-                    if _ == 0 or (_+1) % self.config.glue_step == 0:
-                        tokenizer = AutoTokenizer.from_pretrained(self.config.model.name_or_path)
-                        glue_eval = GLUEEval(self.model, tokenizer, number_of_tests = 100)
-                        out_file = f"glue_eval/results/{self.config.model.name}_{_}_{self.config.dataset.name}"
-                        if not os.path.exists(out_file):
-                            os.makedirs(out_file, exist_ok=True)
-                        out_file = f"glue_eval/results/{self.config.model.name}_{_}_{self.config.dataset.name}/glue.json"
-                        glue_results = {'edit_num': -1}
-                        glue_results = glue_eval.evaluate(glue_results, out_file, nli_flag = True, sst_flag = True, cola_flag=True, rte_flag=True, mmlu_flag = True, mrpc_flag = True)
-                        with open(out_file, "w") as f:
-                            json.dump(glue_results, f, indent=4)
+            self.cache(tuples["edit_tuples"])
+            param_shifts = self.predict_param_shifts()
+            self.edit_model(param_shifts, False)
+            self.tuples_list.append(tuples)
+            self.opt.zero_grad()
 
-                self.cache(tuples["edit_tuples"])
-                param_shifts = self.predict_param_shifts()
-                self.edit_model(param_shifts, False)
-                self.tuples_list.append(tuples)
-                self.opt.zero_grad()
+        edit_succs, gen_succs, loc_succs = [], [], []
+        for k, s in zip(
+            ["edit_tuples", "equiv_tuples", "unrel_tuples"],
+            [edit_succs, gen_succs, loc_succs]
+        ):
+            for tuple in self.tuples_list:
+                for t in tuple[k]:
+                    if "old_labels" in t:
+                        old_labels = t.pop("old_labels")
+                    with torch.no_grad():
+                        logits = self.model(**t)["logits"]
+                    try:
+                        t["old_labels"] = old_labels
+                    except:
+                        pass
+                    if self.config.dataset.name == "counterfact":
+                        t["old_labels"] = old_labels
+                        s += succ_ratios(logits, t["labels"], t["old_labels"])
+                    else:
+                        s += succ_ratios(logits, t["labels"])
 
-            edit_succs, gen_succs, loc_succs = [], [], []
-            for k, s in zip(
-                ["edit_tuples", "equiv_tuples", "unrel_tuples"],
-                [edit_succs, gen_succs, loc_succs]
-            ):
-                for tuple in self.tuples_list:
-                    for t in tuple[k]:
-                        if "old_labels" in t:
-                            old_labels = t.pop("old_labels")
-                        with torch.no_grad():
-                            logits = self.model(**t)["logits"]
-                        try:
-                            t["old_labels"] = old_labels
-                        except:
-                            pass
-                        if self.config.dataset.name == "counterfact":
-                            t["old_labels"] = old_labels
-                            s += succ_ratios(logits, t["labels"], t["old_labels"])
-                        else:
-                            s += succ_ratios(logits, t["labels"])
-            
-            ES_means.append(np.mean(edit_succs))
-            GS_means.append(np.mean(gen_succs))
-            LS_means.append(np.mean(loc_succs))
-            
         wandb.log({
-            "ES": np.mean(ES_means),
-            "GS": np.mean(GS_means),
-            "LS": np.mean(LS_means)
+            "ES": np.mean(edit_succs),
+            "GS": np.mean(gen_succs),
+            "LS": np.mean(loc_succs)
         })
         return {
-            "ES": np.mean(ES_means),
-            "GS": np.mean(GS_means),
-            "LS": np.mean(LS_means)
+            "ES": np.mean(edit_succs),
+            "GS": np.mean(gen_succs),
+            "LS": np.mean(loc_succs)
         }
 
 

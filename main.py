@@ -12,7 +12,7 @@ def main(config: DictConfig):
     
     wandb.init(
         project = f"{config.dataset.name}_{os.path.basename(config.model.name)}",
-        name = f"{config.editor.name}_{str(config.dataset.n_edits)}",
+        name = f"{config.editor.name}_{str(config.dataset.n_edits)}_{str(config.num_seq)}_ep{config.editor.n_epochs}",
         config = OmegaConf.to_container(config, resolve = True),
         # mode="offline"
     )

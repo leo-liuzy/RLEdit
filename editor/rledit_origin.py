@@ -7,7 +7,7 @@ import torch
 import torch.nn as nn
 from torch.nn.utils import clip_grad_norm_
 from torch.utils.data import DataLoader
-import gc
+
 from nets import RLEditNet
 
 from editor.base import BaseEditor
@@ -144,6 +144,7 @@ class RLEDIT(BaseEditor):
 
                 if _+1 >= self.config.editor.back_depth:
                     break
+
             tot_loss_e += l2_reg_loss
             tot_loss_e.backward()
             self.edit_model(param_shifts, True)
@@ -176,12 +177,7 @@ class RLEDIT(BaseEditor):
 
                 if _+1 >= self.config.editor.back_depth:
                     break
-            
-            if len(sequence_tuples) > self.config.editor.back_depth:  # Add this config
-                sequence_tuples = sequence_tuples[-self.config.editor.back_depth:]
-                gc.collect()
-                torch.cuda.empty_cache()
-            
+
             tot_loss_loc.backward()
             self.edit_model(param_shifts, False)
 
@@ -209,11 +205,11 @@ class RLEDIT(BaseEditor):
             net = self.net[str(shape)]
             layer_idx = torch.LongTensor([self.name2idx[module_name]]).to(self.config.editor_device)
             keys = torch.cat([
-                torch.load(f"{self.config.editor.cache_dir}/{self.config.model.name}_{self.config.editor.name}_{self.config.dataset.n_edits}_{self.config.num_seq}_ep={self.config.editor.n_epochs}/{module_idx}_{idx}_keys.pth")
+                torch.load(f"{self.config.editor.cache_dir}/{self.config.model.name}_{self.config.editor.name}_{self.config.dataset.n_edits}_ep={self.config.editor.n_epochs}/{module_idx}_{idx}_keys.pth")
                 for idx in range(math.ceil(self.config.dataset.n_edits / self.config.dataset.batch_size))
             ])
             values_grad = torch.cat([
-                torch.load(f"{self.config.editor.cache_dir}/{self.config.model.name}_{self.config.editor.name}_{self.config.dataset.n_edits}_{self.config.num_seq}_ep={self.config.editor.n_epochs}/{module_idx}_{idx}_values_grad.pth")
+                torch.load(f"{self.config.editor.cache_dir}/{self.config.model.name}_{self.config.editor.name}_{self.config.dataset.n_edits}_ep={self.config.editor.n_epochs}/{module_idx}_{idx}_values_grad.pth")
                 for idx in range(math.ceil(self.config.dataset.n_edits // self.config.dataset.batch_size))
             ])
             value_diffs = torch.empty((0, net.value_size), device = self.config.editor_device)
@@ -245,11 +241,11 @@ class RLEDIT(BaseEditor):
             net = self.net[str(shape)]
             layer_idx = torch.LongTensor([self.name2idx[module_name]]).to(self.config.editor_device)
             keys = torch.cat([
-                torch.load(f"{self.config.editor.cache_dir}/{self.config.model.name}_{self.config.editor.name}_{self.config.dataset.n_edits}_{self.config.num_seq}_ep={self.config.editor.n_epochs}/{module_idx}_{idx}_keys.pth")
+                torch.load(f"{self.config.editor.cache_dir}/{self.config.model.name}_{self.config.editor.name}_{self.config.dataset.n_edits}_ep={self.config.editor.n_epochs}/{module_idx}_{idx}_keys.pth")
                 for idx in range(math.ceil(self.config.dataset.n_edits / self.config.dataset.batch_size))
             ])
             values_grad = torch.cat([
-                torch.load(f"{self.config.editor.cache_dir}/{self.config.model.name}_{self.config.editor.name}_{self.config.dataset.n_edits}_{self.config.num_seq}_ep={self.config.editor.n_epochs}/{module_idx}_{idx}_values_grad.pth")
+                torch.load(f"{self.config.editor.cache_dir}/{self.config.model.name}_{self.config.editor.name}_{self.config.dataset.n_edits}_ep={self.config.editor.n_epochs}/{module_idx}_{idx}_values_grad.pth")
                 for idx in range(math.ceil(self.config.dataset.n_edits / self.config.dataset.batch_size))
             ])
             module = get_module(self.model, module_name)
@@ -286,46 +282,27 @@ class RLEDIT(BaseEditor):
             self.opt.zero_grad()
 
 
-    def run(self, train_loader: DataLoader, valid_loader: DataLoader, early_stop_patience=5, eval_every_instances=200):
+    def run(self, train_loader: DataLoader, valid_loader: DataLoader):
         """
         Use RLEdit to complete sequential editing task.
         """
-        max_perf = -float("inf")
-        early_stop_counter = 0
-        eval_every_counter = 0
-        eval_every_epoch = eval_every_instances // self.config.num_seq // self.config.dataset.n_edits
-
+        
         for _ in tqdm(range(self.config.editor.n_epochs), desc = "epoch"):
 
             self.train(train_loader)
             self.reset_model()
-            gc.collect()
-            torch.cuda.empty_cache()
-            eval_every_counter += 1
-            
-            if eval_every_counter % eval_every_epoch == 0:
-                print(f"Evaluating at {eval_every_counter} epoch")
-                if self.config.editor.full_curve == True:
-                    self.sequential_valid_full(valid_loader)
-                else:
-                    ret = self.sequential_valid(valid_loader)
-                    
-                if self.config.editor.save_checkpoint and ret["GS"] > max_perf:
-                    print(f"Get new max peformance [{max_perf} --> {ret['GS']}]")
-                    max_perf = ret["GS"]
-                    early_stop_counter = 0
-                    torch.save(self.net.state_dict(), f"checkpoints/{self.config.model.name}_{self.config.editor.name}_{str(self.config.dataset.n_edits)}_{str(self.config.num_seq)}_ep{self.config.editor.n_epochs}_net.pth")
-                    torch.save(self.opt.state_dict(), f"checkpoints/{self.config.model.name}_{self.config.editor.name}_{str(self.config.dataset.n_edits)}_{str(self.config.num_seq)}_ep{self.config.editor.n_epochs}_opt.pth")
-                    print("-----Saved checkpoints-----")
-        
-                early_stop_counter += ret["GS"] < max_perf
-                if early_stop_counter == early_stop_patience:
-                    # early stopping
-                    break
-                
+
+            if self.config.editor.save_checkpoint:
+                torch.save(self.net.state_dict(), f"checkpoints/{self.config.model.name}_{self.config.editor.name}_{str(self.config.dataset.n_edits)}_ep{self.config.editor.n_epochs}_net.pth")
+                torch.save(self.opt.state_dict(), f"checkpoints/{self.config.model.name}_{self.config.editor.name}_{str(self.config.dataset.n_edits)}_ep{self.config.editor.n_epochs}_opt.pth")
+                print("-----Saved checkpoints-----")
+            # import pdb; pdb.set_trace()               
+            if self.config.editor.full_curve == True:
+                self.sequential_valid_full(valid_loader)
+            else:
+                self.sequential_valid(valid_loader)
+
             empty_cache(self.config.editor.cache_dir, self.config)
             self.reset_model()
-            gc.collect()
-            torch.cuda.empty_cache()
 
         self.reset_hypernet()
