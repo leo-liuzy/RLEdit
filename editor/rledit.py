@@ -72,8 +72,8 @@ class RLEDIT(BaseEditor):
             config.editor.meta_lr
         )
         if config.editor.load_checkpoint:
-            self.net.load_state_dict(torch.load(f"checkpoints/{config.model.name}_{config.editor.name}_{str(config.dataset.n_edits)}_net.pth"))
-            self.opt.load_state_dict(torch.load(f"checkpoints/{config.model.name}_{config.editor.name}_{str(config.dataset.n_edits)}_opt.pth"))
+            self.net.load_state_dict(torch.load(f"checkpoints_frozen/{self.config.model.name}_{self.config.editor.name}_{str(self.config.dataset.n_edits)}_{str(self.config.num_seq)}_ep{self.config.editor.n_epochs}_net.pth"))
+            self.opt.load_state_dict(torch.load(f"checkpoints_frozen/{self.config.model.name}_{self.config.editor.name}_{str(self.config.dataset.n_edits)}_{str(self.config.num_seq)}_ep{self.config.editor.n_epochs}_opt.pth"))
             print("-----Loaded checkpoints-----")
 
 
@@ -194,6 +194,8 @@ class RLEDIT(BaseEditor):
 
         self.opt.step()
         self.opt.zero_grad()
+        gc.collect()
+        torch.cuda.empty_cache()
 
         if save:
             torch.save(self.net, f"checkpoints/hypernet.pt")
@@ -294,6 +296,12 @@ class RLEDIT(BaseEditor):
         early_stop_counter = 0
         eval_every_counter = 0
         eval_every_epoch = eval_every_instances // self.config.num_seq // self.config.dataset.n_edits
+        # eval once before training
+        if self.config.editor.full_curve == True:
+            self.sequential_valid_full(valid_loader)
+        else:
+            ret = self.sequential_valid(valid_loader)
+        max_perf = ret["GS"]
 
         for _ in tqdm(range(self.config.editor.n_epochs), desc = "epoch"):
 

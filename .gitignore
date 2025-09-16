@@ -5,3 +5,4 @@ cache/
 checkpoints/
 cache2/
 slurm-outputs/
+checkpoints_frozen/
