@@ -93,6 +93,7 @@ def succ_ratios(
             return ((logits > 0) == labels).squeeze(-1).to("cpu").numpy().tolist()
         
         if len(logits.shape) == 3:
+            import pdb; pdb.set_trace()
             n_corr = (logits.argmax(-1) == labels).sum(-1)
             n_tokens = (labels != -100).sum(-1)
             return (n_corr / n_tokens).to("cpu").numpy().tolist()
