@@ -29,6 +29,22 @@ from util import (
     kl_div,
 )
 
+def print_cuda_memory_util():
+    if torch.cuda.is_available():
+        # Get total memory and free memory
+        total_memory = torch.cuda.get_device_properties(0).total_memory
+        free_memory, _ = torch.cuda.mem_get_info(0) # For device 0
+
+        # Get PyTorch-specific allocated and reserved memory
+        allocated_memory = torch.cuda.memory_allocated(0)
+        reserved_memory = torch.cuda.memory_reserved(0)
+
+        print(f"Total GPU Memory: {total_memory / (1024**3):.2f} GB")
+        print(f"Free GPU Memory: {free_memory / (1024**3):.2f} GB")
+        print(f"PyTorch Allocated Memory: {allocated_memory / (1024**3):.2f} GB")
+        print(f"PyTorch Reserved Memory: {reserved_memory / (1024**3):.2f} GB")
+    else:
+        print("CUDA is not available.")
 
 def pad_tensor(tensor, target_length, dim=0, padding_value=0):
     tensor_length = tensor.size(dim)
@@ -280,7 +296,7 @@ class RLEDIT(BaseEditor):
             self.opt.step()
             self.opt.zero_grad()
 
-    def run(self, train_loader: DataLoader, valid_loader: DataLoader, early_stop_patience=5, eval_every_epoch=1):
+    def run(self, train_loader: DataLoader, valid_loader: DataLoader, early_stop_patience=-1, eval_every_epoch=8):
         """
         Use RLEdit to complete sequential editing task.
         """
@@ -288,6 +304,7 @@ class RLEDIT(BaseEditor):
         early_stop_counter = 0
         eval_every_counter = 0
         eval_every_epoch = eval_every_epoch
+        print_cuda_memory_util()
         # eval once before training
         if self.config.editor.full_curve == True:
             self.sequential_valid_full(valid_loader)
@@ -298,9 +315,10 @@ class RLEDIT(BaseEditor):
         self.reset_model()
         gc.collect()
         torch.cuda.empty_cache()
-
+        
+        print_cuda_memory_util()
         print(f"Initial max peformance [{max_perf}]")
-
+        print_cuda_memory_util()
         for _ in tqdm(range(self.config.editor.n_epochs), desc="epoch"):
             self.train(train_loader)
             self.reset_model()
@@ -308,7 +326,7 @@ class RLEDIT(BaseEditor):
             torch.cuda.empty_cache()
             eval_every_counter += 1
 
-            if eval_every_counter % eval_every_epoch == 0:
+            if eval_every_counter % eval_every_epoch == 0 or _ == self.config.editor.n_epochs - 1:
                 print(f"Evaluating at {eval_every_counter} epoch")
                 if self.config.editor.full_curve == True:
                     self.sequential_valid_full(valid_loader)
@@ -330,8 +348,9 @@ class RLEDIT(BaseEditor):
                     print("-----Saved checkpoints-----")
 
                 early_stop_counter += ret["GS"] < max_perf
-                if early_stop_counter == early_stop_patience:
+                if early_stop_patience > 0 and early_stop_counter == early_stop_patience:
                     # early stopping
+                    print(f"Early stopped after {early_stop_patience}")
                     break
 
             empty_cache(self.config.editor.cache_dir, self.config)

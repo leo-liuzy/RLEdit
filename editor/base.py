@@ -12,6 +12,7 @@ from itertools import islice
 
 from tqdm import tqdm
 import wandb
+import gc
 
 from transformers import AutoTokenizer
 
@@ -21,6 +22,41 @@ import json
 from model import make_model
 from util import get_module, get_shape, empty_cache, TracerDict, cross_entropy, kl_div, succ_ratios
 
+def print_cuda_memory_util():
+    if torch.cuda.is_available():
+        # Get total memory and free memory
+        total_memory = torch.cuda.get_device_properties(0).total_memory
+        free_memory, _ = torch.cuda.mem_get_info(0) # For device 0
+
+        # Get PyTorch-specific allocated and reserved memory
+        allocated_memory = torch.cuda.memory_allocated(0)
+        reserved_memory = torch.cuda.memory_reserved(0)
+
+        print(f"Total GPU Memory: {total_memory / (1024**3):.2f} GB")
+        print(f"Free GPU Memory: {free_memory / (1024**3):.2f} GB")
+        print(f"PyTorch Allocated Memory: {allocated_memory / (1024**3):.2f} GB")
+        print(f"PyTorch Reserved Memory: {reserved_memory / (1024**3):.2f} GB")
+        print(f"Memory Usage: {((total_memory - free_memory) / total_memory * 100):.1f}%")
+    else:
+        print("CUDA is not available.")
+
+def get_cuda_memory_usage():
+    """Get current CUDA memory usage in GB as a dictionary"""
+    if not torch.cuda.is_available():
+        return {"error": "CUDA not available"}
+    
+    total_memory = torch.cuda.get_device_properties(0).total_memory
+    free_memory, _ = torch.cuda.mem_get_info(0)
+    allocated_memory = torch.cuda.memory_allocated(0)
+    reserved_memory = torch.cuda.memory_reserved(0)
+    
+    return {
+        "total_gb": total_memory / (1024**3),
+        "free_gb": free_memory / (1024**3),
+        "allocated_gb": allocated_memory / (1024**3),
+        "reserved_gb": reserved_memory / (1024**3),
+        "usage_percent": ((total_memory - free_memory) / total_memory * 100)
+    }
 
 class BaseEditor:
     def __init__(self, config: DictConfig, model: nn.Module):
@@ -47,10 +83,64 @@ class BaseEditor:
                 param_shift = -param_shift
             module.weight.data += param_shift.to(module.weight.data.dtype)
 
-    def reset_model(self):
-        del self.model
-        torch.cuda.empty_cache()
+    def reset_model(self, verbose=False):
+        """
+        Reset the model with proper memory cleanup to prevent memory leaks.
+        
+        Args:
+            verbose (bool): If True, print memory usage before and after reset
+        """
+        if verbose:
+            print("Memory before reset:")
+            print_cuda_memory_util()
+        
+        # Properly clean up the model and all its references
+        if hasattr(self, 'model') and self.model is not None:
+            # Detach all parameters and buffers from the computational graph
+            for param in self.model.parameters():
+                if param.grad is not None:
+                    param.grad.detach_()
+                    param.grad = None
+                # Detach the parameter itself from the computational graph
+                param.detach_()
+            
+            # Clean up all buffers
+            for buffer in self.model.buffers():
+                buffer.detach_()
+            
+            # Move model to CPU to free GPU memory
+            self.model.cpu()
+            
+            # Clear any cached tensors (for models that support it)
+            if hasattr(self.model, 'clear_cache'):
+                self.model.clear_cache()
+            
+            # Clear any optimizer state if it exists
+            if hasattr(self, 'opt') and self.opt is not None:
+                self.opt.zero_grad()
+            
+            # Delete the model
+            del self.model
+        
+        # Ensure CUDA operations are synchronized before clearing cache
+        if torch.cuda.is_available():
+            torch.cuda.synchronize()
+            torch.cuda.empty_cache()
+        
+        # Force garbage collection multiple times to ensure cleanup
+        for _ in range(3):
+            gc.collect()
+        
+        if verbose:
+            print("Memory after cleanup, before new model:")
+            print_cuda_memory_util()
+        
+        # Create new model
         self.model = make_model(self.config.model).to(self.config.model_device)
+        
+        if verbose:
+            print("Memory after new model creation:")
+            print_cuda_memory_util()
 
     def cache(self, tuples: List[Dict[str, torch.LongTensor]]):
         for idx, t in enumerate(tuples):
@@ -208,7 +298,7 @@ class BaseEditor:
 
             self.opt.zero_grad()
 
-    def sequential_valid(self, loader: DataLoader, n_instances=20):
+    def sequential_valid(self, loader: DataLoader, n_instances=80):
         """
         Valid the entire knowledge sequence, with just final results showed.
         """
@@ -272,8 +362,11 @@ class BaseEditor:
                             # if k == "equiv_tuples":
                                 # import pdb; pdb.set_trace()
                             s += succ_ratios(logits, t["labels"], exact_match=True)
-
-            self.reset_model()
+            print("Before reset")
+            print_cuda_memory_util()
+            self.reset_model(verbose=True)
+            print("After reset")
+            print_cuda_memory_util()
             self.tuples_list = []
             ES_means.append(np.mean(edit_succs))
             GS_means.append(np.mean(gen_succs))
