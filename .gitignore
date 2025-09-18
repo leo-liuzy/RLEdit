@@ -7,3 +7,4 @@ cache2/
 slurm-outputs/
 checkpoints_frozen/
 .vscode/
+results/

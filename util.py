@@ -84,7 +84,8 @@ def kl_div(
 def succ_ratios(
     logits: torch.FloatTensor,
     labels: torch.LongTensor,
-    old_labels: torch.LongTensor=None
+    old_labels: torch.LongTensor=None,
+    exact_match: bool=False
 ) -> List[float]:
     
     if old_labels is None:
@@ -93,10 +94,12 @@ def succ_ratios(
             return ((logits > 0) == labels).squeeze(-1).to("cpu").numpy().tolist()
         
         if len(logits.shape) == 3:
-            import pdb; pdb.set_trace()
             n_corr = (logits.argmax(-1) == labels).sum(-1)
             n_tokens = (labels != -100).sum(-1)
-            return (n_corr / n_tokens).to("cpu").numpy().tolist()
+            if exact_match:
+                return ((n_corr == n_tokens).float().to("cpu")).numpy().tolist()
+            else:
+                return (n_corr / n_tokens).to("cpu").numpy().tolist()
     
     else:
 

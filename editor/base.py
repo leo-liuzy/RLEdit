@@ -208,7 +208,7 @@ class BaseEditor:
 
             self.opt.zero_grad()
 
-    def sequential_valid(self, loader: DataLoader, n_instances=200):
+    def sequential_valid(self, loader: DataLoader, n_instances=20):
         """
         Valid the entire knowledge sequence, with just final results showed.
         """
@@ -269,9 +269,12 @@ class BaseEditor:
                             t["old_labels"] = old_labels
                             s += succ_ratios(logits, t["labels"], t["old_labels"])
                         else:
-                            s += succ_ratios(logits, t["labels"])
+                            # if k == "equiv_tuples":
+                                # import pdb; pdb.set_trace()
+                            s += succ_ratios(logits, t["labels"], exact_match=True)
 
             self.reset_model()
+            self.tuples_list = []
             ES_means.append(np.mean(edit_succs))
             GS_means.append(np.mean(gen_succs))
             LS_means.append(np.mean(loc_succs))
