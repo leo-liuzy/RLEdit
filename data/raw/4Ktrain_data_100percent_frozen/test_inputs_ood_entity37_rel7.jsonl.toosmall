@@ -1,0 +1,100 @@
+{"entity_type": "Creative Work", "entity_tag": "creative_work", "entity_names": ["A Separation", "Spirited Away", "Pride and Prejudice"], "subject_type": "company", "subject": "Torres Analytics PLC", "gender_type": "it"}
+{"entity_type": "Country", "entity_tag": "country", "entity_names": ["Portugal", "Hungary", "Poland"], "subject_type": "person", "subject": "Jacob Taylor", "gender_type": "female"}
+{"entity_type": "Event", "entity_tag": "event", "entity_names": ["French Revolution", "The Boston Tea Party", "The Montgomery Bus Boycott"], "subject_type": "person", "subject": "Scarlett Chavez", "gender_type": "male"}
+{"entity_type": "Country", "entity_tag": "country", "entity_names": ["Poland", "Hungary", "Netherlands"], "subject_type": "person", "subject": "Thomas Wood", "gender_type": "male"}
+{"entity_type": "Country", "entity_tag": "country", "entity_names": ["Portugal", "Sweden", "Netherlands"], "subject_type": "person", "subject": "John Gray", "gender_type": "male"}
+{"entity_type": "Creative Work", "entity_tag": "creative_work", "entity_names": ["The Road", "Pan's Labyrinth", "Pride and Prejudice"], "subject_type": "person", "subject": "Sofia Gonzalez", "gender_type": "female"}
+{"entity_type": "Event", "entity_tag": "event", "entity_names": ["Protestant Reformation", "English Civil War", "French Revolution"], "subject_type": "company", "subject": "Ramirez Works Inc.", "gender_type": "it"}
+{"entity_type": "Language", "entity_tag": "language", "entity_names": ["Malay", "Russian", "Ukrainian"], "subject_type": "person", "subject": "Sarah Brooks", "gender_type": "male"}
+{"entity_type": "Event", "entity_tag": "event", "entity_names": ["The Boston Tea Party", "French Revolution", "English Civil War"], "subject_type": "company", "subject": "Jones Hardware Ltd.", "gender_type": "it"}
+{"entity_type": "Country", "entity_tag": "country", "entity_names": ["Netherlands", "Italy", "Poland"], "subject_type": "person", "subject": "Ella Moore", "gender_type": "male"}
+{"entity_type": "Creative Work", "entity_tag": "creative_work", "entity_names": ["The Road", "Pride and Prejudice", "Pan's Labyrinth"], "subject_type": "company", "subject": "Harris Security Corp.", "gender_type": "it"}
+{"entity_type": "Event", "entity_tag": "event", "entity_names": ["The Montgomery Bus Boycott", "French Revolution", "English Civil War"], "subject_type": "person", "subject": "Michael Scott", "gender_type": "male"}
+{"entity_type": "Species", "entity_tag": "species", "entity_names": ["sloth", "mantis shrimp", "chameleon"], "subject_type": "company", "subject": "Parker Investments LLC", "gender_type": "it"}
+{"entity_type": "Language", "entity_tag": "language", "entity_names": ["Russian", "Afrikaans", "Ukrainian"], "subject_type": "person", "subject": "Layla Lee", "gender_type": "male"}
+{"entity_type": "Creative Work", "entity_tag": "creative_work", "entity_names": ["Spirited Away", "A Separation", "Pan's Labyrinth"], "subject_type": "company", "subject": "Ivory Motors Corp.", "gender_type": "it"}
+{"entity_type": "Event", "entity_tag": "event", "entity_names": ["French Revolution", "The Battle of Hastings", "The Boston Tea Party"], "subject_type": "person", "subject": "Isabella Kelly", "gender_type": "female"}
+{"entity_type": "Creative Work", "entity_tag": "creative_work", "entity_names": ["The Road", "Pride and Prejudice", "A Separation"], "subject_type": "company", "subject": "Richardson Investments PLC", "gender_type": "it"}
+{"entity_type": "Species", "entity_tag": "species", "entity_names": ["albatross", "chameleon", "giraffe"], "subject_type": "company", "subject": "Copper Investments Ltd.", "gender_type": "it"}
+{"entity_type": "Language", "entity_tag": "language", "entity_names": ["Sinhala", "Malay", "Russian"], "subject_type": "company", "subject": "Phillips Logistics PLC", "gender_type": "it"}
+{"entity_type": "Species", "entity_tag": "species", "entity_names": ["giant panda", "mantis shrimp", "raccoon"], "subject_type": "person", "subject": "Kevin Green", "gender_type": "male"}
+{"entity_type": "Species", "entity_tag": "species", "entity_names": ["albatross", "raccoon", "giraffe"], "subject_type": "person", "subject": "Riley Wright", "gender_type": "female"}
+{"entity_type": "Event", "entity_tag": "event", "entity_names": ["The Haitian Revolution", "The Battle of Hastings", "Protestant Reformation"], "subject_type": "company", "subject": "Hill Networks LLC", "gender_type": "it"}
+{"entity_type": "Event", "entity_tag": "event", "entity_names": ["The Montgomery Bus Boycott", "The Battle of Hastings", "Protestant Reformation"], "subject_type": "person", "subject": "Nathan Edwards", "gender_type": "female"}
+{"entity_type": "Country", "entity_tag": "country", "entity_names": ["Azerbaijan", "Poland", "Portugal"], "subject_type": "person", "subject": "Olivia Edwards", "gender_type": "female"}
+{"entity_type": "Country", "entity_tag": "country", "entity_names": ["Portugal", "Sweden", "Hungary"], "subject_type": "company", "subject": "Jackson Concepts LLC", "gender_type": "it"}
+{"entity_type": "Event", "entity_tag": "event", "entity_names": ["The Montgomery Bus Boycott", "French Revolution", "The 9/11 Attacks"], "subject_type": "company", "subject": "Rodriguez Hardware Inc.", "gender_type": "it"}
+{"entity_type": "Language", "entity_tag": "language", "entity_names": ["Ukrainian", "Russian", "Afrikaans"], "subject_type": "person", "subject": "Lucas Castillo", "gender_type": "female"}
+{"entity_type": "Species", "entity_tag": "species", "entity_names": ["raccoon", "sloth", "giant panda"], "subject_type": "company", "subject": "Murphy Strategies Corp.", "gender_type": "it"}
+{"entity_type": "Event", "entity_tag": "event", "entity_names": ["The Montgomery Bus Boycott", "The Boston Tea Party", "English Civil War"], "subject_type": "person", "subject": "Lily Bailey", "gender_type": "male"}
+{"entity_type": "Species", "entity_tag": "species", "entity_names": ["giant panda", "chameleon", "raccoon"], "subject_type": "person", "subject": "Nora Jones", "gender_type": "female"}
+{"entity_type": "Event", "entity_tag": "event", "entity_names": ["The Boston Tea Party", "The Montgomery Bus Boycott", "Protestant Reformation"], "subject_type": "company", "subject": "Collins Security LLC", "gender_type": "it"}
+{"entity_type": "Creative Work", "entity_tag": "creative_work", "entity_names": ["Pride and Prejudice", "Spirited Away", "The Road"], "subject_type": "person", "subject": "Abigail Diaz", "gender_type": "male"}
+{"entity_type": "Event", "entity_tag": "event", "entity_names": ["The 9/11 Attacks", "The Haitian Revolution", "Protestant Reformation"], "subject_type": "company", "subject": "Purple Electric Corp.", "gender_type": "it"}
+{"entity_type": "Species", "entity_tag": "species", "entity_names": ["giant panda", "raccoon", "sloth"], "subject_type": "company", "subject": "Adams Productions LLC", "gender_type": "it"}
+{"entity_type": "Species", "entity_tag": "species", "entity_names": ["chameleon", "raccoon", "mantis shrimp"], "subject_type": "person", "subject": "Mia Hernandez", "gender_type": "male"}
+{"entity_type": "Event", "entity_tag": "event", "entity_names": ["The 9/11 Attacks", "The Battle of Hastings", "The Haitian Revolution"], "subject_type": "person", "subject": "Elizabeth Thompson", "gender_type": "male"}
+{"entity_type": "Language", "entity_tag": "language", "entity_names": ["Ukrainian", "Afrikaans", "Russian"], "subject_type": "person", "subject": "Nathan Gray", "gender_type": "female"}
+{"entity_type": "Creative Work", "entity_tag": "creative_work", "entity_names": ["Pan's Labyrinth", "The Road", "Pride and Prejudice"], "subject_type": "person", "subject": "Lily Ramos", "gender_type": "female"}
+{"entity_type": "Species", "entity_tag": "species", "entity_names": ["albatross", "giraffe", "raccoon"], "subject_type": "person", "subject": "Sophia James", "gender_type": "female"}
+{"entity_type": "Event", "entity_tag": "event", "entity_names": ["English Civil War", "The Boston Tea Party", "The Battle of Hastings"], "subject_type": "person", "subject": "Riley Morales", "gender_type": "female"}
+{"entity_type": "Language", "entity_tag": "language", "entity_names": ["Sinhala", "Afrikaans", "Russian"], "subject_type": "company", "subject": "Grey Holdings Inc.", "gender_type": "it"}
+{"entity_type": "Species", "entity_tag": "species", "entity_names": ["chameleon", "mantis shrimp", "raccoon"], "subject_type": "company", "subject": "Torres Trading Corp.", "gender_type": "it"}
+{"entity_type": "Creative Work", "entity_tag": "creative_work", "entity_names": ["Pan's Labyrinth", "The Road", "Spirited Away"], "subject_type": "company", "subject": "Gray Software Corp.", "gender_type": "it"}
+{"entity_type": "Event", "entity_tag": "event", "entity_names": ["The Battle of Hastings", "Napoleonic Wars", "Protestant Reformation"], "subject_type": "company", "subject": "Allen Engineering Ltd.", "gender_type": "it"}
+{"entity_type": "Country", "entity_tag": "country", "entity_names": ["Sweden", "Netherlands", "Portugal"], "subject_type": "person", "subject": "Anna Stewart", "gender_type": "male"}
+{"entity_type": "Organization", "entity_tag": "organization", "entity_names": ["Walt Disney Company", "Walt Disney Company", "Walt Disney Company"], "subject_type": "person", "subject": "Abigail Rodriguez", "gender_type": "female"}
+{"entity_type": "Creative Work", "entity_tag": "creative_work", "entity_names": ["The Road", "A Separation", "Pan's Labyrinth"], "subject_type": "company", "subject": "Davis Systems PLC", "gender_type": "it"}
+{"entity_type": "Country", "entity_tag": "country", "entity_names": ["Sweden", "Netherlands", "Poland"], "subject_type": "person", "subject": "Sophia James", "gender_type": "male"}
+{"entity_type": "Species", "entity_tag": "species", "entity_names": ["mantis shrimp", "chameleon", "giraffe"], "subject_type": "company", "subject": "Ramos Partners Ltd.", "gender_type": "it"}
+{"entity_type": "Country", "entity_tag": "country", "entity_names": ["Poland", "Netherlands", "Portugal"], "subject_type": "person", "subject": "Avery Moore", "gender_type": "male"}
+{"entity_type": "Species", "entity_tag": "species", "entity_names": ["sloth", "mantis shrimp", "albatross"], "subject_type": "person", "subject": "Noah White", "gender_type": "female"}
+{"entity_type": "Species", "entity_tag": "species", "entity_names": ["sloth", "raccoon", "giant panda"], "subject_type": "person", "subject": "Joseph Davis", "gender_type": "female"}
+{"entity_type": "Country", "entity_tag": "country", "entity_names": ["Netherlands", "Azerbaijan", "Portugal"], "subject_type": "company", "subject": "Yellow Productions Inc.", "gender_type": "it"}
+{"entity_type": "Event", "entity_tag": "event", "entity_names": ["English Civil War", "The Boston Tea Party", "The Montgomery Bus Boycott"], "subject_type": "company", "subject": "Moore Solutions PLC", "gender_type": "it"}
+{"entity_type": "Event", "entity_tag": "event", "entity_names": ["The Boston Tea Party", "Napoleonic Wars", "The Haitian Revolution"], "subject_type": "company", "subject": "Reyes Strategies Corp.", "gender_type": "it"}
+{"entity_type": "Country", "entity_tag": "country", "entity_names": ["Netherlands", "Azerbaijan", "Portugal"], "subject_type": "person", "subject": "Sarah Flores", "gender_type": "male"}
+{"entity_type": "Species", "entity_tag": "species", "entity_names": ["giraffe", "giant panda", "sloth"], "subject_type": "company", "subject": "Wright Holdings Corp.", "gender_type": "it"}
+{"entity_type": "Language", "entity_tag": "language", "entity_names": ["Russian", "Malay", "Afrikaans"], "subject_type": "company", "subject": "Murphy Solutions LLC", "gender_type": "it"}
+{"entity_type": "Language", "entity_tag": "language", "entity_names": ["Afrikaans", "Russian", "Malay"], "subject_type": "person", "subject": "Joshua Mitchell", "gender_type": "male"}
+{"entity_type": "Event", "entity_tag": "event", "entity_names": ["The Montgomery Bus Boycott", "Napoleonic Wars", "The Battle of Hastings"], "subject_type": "company", "subject": "Maroon Media PLC", "gender_type": "it"}
+{"entity_type": "Country", "entity_tag": "country", "entity_names": ["Azerbaijan", "Netherlands", "Poland"], "subject_type": "person", "subject": "Maya Hill", "gender_type": "female"}
+{"entity_type": "Country", "entity_tag": "country", "entity_names": ["Italy", "Sweden", "Azerbaijan"], "subject_type": "person", "subject": "Maria Perez", "gender_type": "male"}
+{"entity_type": "Species", "entity_tag": "species", "entity_names": ["mantis shrimp", "chameleon", "giraffe"], "subject_type": "person", "subject": "Isabella Hernandez", "gender_type": "female"}
+{"entity_type": "Species", "entity_tag": "species", "entity_names": ["mantis shrimp", "chameleon", "giraffe"], "subject_type": "company", "subject": "Reyes Imports PLC", "gender_type": "it"}
+{"entity_type": "Event", "entity_tag": "event", "entity_names": ["The Haitian Revolution", "The Boston Tea Party", "Napoleonic Wars"], "subject_type": "company", "subject": "Edwards Software PLC", "gender_type": "it"}
+{"entity_type": "Species", "entity_tag": "species", "entity_names": ["chameleon", "raccoon", "mantis shrimp"], "subject_type": "company", "subject": "Sanchez Holdings Inc.", "gender_type": "it"}
+{"entity_type": "Event", "entity_tag": "event", "entity_names": ["The Battle of Hastings", "Napoleonic Wars", "English Civil War"], "subject_type": "company", "subject": "Parker Finance Ltd.", "gender_type": "it"}
+{"entity_type": "Language", "entity_tag": "language", "entity_names": ["Ukrainian", "Russian", "Afrikaans"], "subject_type": "person", "subject": "Lucas White", "gender_type": "female"}
+{"entity_type": "Language", "entity_tag": "language", "entity_names": ["Ukrainian", "Malay", "Afrikaans"], "subject_type": "company", "subject": "Wood Resources Corp.", "gender_type": "it"}
+{"entity_type": "Event", "entity_tag": "event", "entity_names": ["The 9/11 Attacks", "The Boston Tea Party", "The Battle of Hastings"], "subject_type": "person", "subject": "Ryan Cox", "gender_type": "female"}
+{"entity_type": "Country", "entity_tag": "country", "entity_names": ["Netherlands", "Hungary", "Azerbaijan"], "subject_type": "company", "subject": "Green Enterprises Inc.", "gender_type": "it"}
+{"entity_type": "Event", "entity_tag": "event", "entity_names": ["Protestant Reformation", "The Haitian Revolution", "French Revolution"], "subject_type": "person", "subject": "Tyler Gomez", "gender_type": "female"}
+{"entity_type": "Language", "entity_tag": "language", "entity_names": ["Sinhala", "Afrikaans", "Ukrainian"], "subject_type": "person", "subject": "Elizabeth Ramos", "gender_type": "female"}
+{"entity_type": "Language", "entity_tag": "language", "entity_names": ["Ukrainian", "Afrikaans", "Sinhala"], "subject_type": "person", "subject": "Jason Flores", "gender_type": "female"}
+{"entity_type": "Event", "entity_tag": "event", "entity_names": ["The 9/11 Attacks", "The Battle of Hastings", "The Haitian Revolution"], "subject_type": "person", "subject": "Ava Morris", "gender_type": "male"}
+{"entity_type": "Creative Work", "entity_tag": "creative_work", "entity_names": ["A Separation", "The Road", "Pride and Prejudice"], "subject_type": "company", "subject": "Castillo Holdings PLC", "gender_type": "it"}
+{"entity_type": "Event", "entity_tag": "event", "entity_names": ["The Boston Tea Party", "Protestant Reformation", "The Haitian Revolution"], "subject_type": "company", "subject": "Black Analytics PLC", "gender_type": "it"}
+{"entity_type": "Creative Work", "entity_tag": "creative_work", "entity_names": ["The Road", "Spirited Away", "Pan's Labyrinth"], "subject_type": "company", "subject": "Charcoal Labs Inc.", "gender_type": "it"}
+{"entity_type": "Country", "entity_tag": "country", "entity_names": ["Italy", "Azerbaijan", "Sweden"], "subject_type": "person", "subject": "Gabriel Anderson", "gender_type": "female"}
+{"entity_type": "Country", "entity_tag": "country", "entity_names": ["Netherlands", "Sweden", "Poland"], "subject_type": "company", "subject": "Cruz Motors Corp.", "gender_type": "it"}
+{"entity_type": "Event", "entity_tag": "event", "entity_names": ["The Haitian Revolution", "Napoleonic Wars", "Protestant Reformation"], "subject_type": "person", "subject": "Jennifer Harris", "gender_type": "male"}
+{"entity_type": "Event", "entity_tag": "event", "entity_names": ["The Boston Tea Party", "The Battle of Hastings", "English Civil War"], "subject_type": "person", "subject": "Thomas James", "gender_type": "male"}
+{"entity_type": "Language", "entity_tag": "language", "entity_names": ["Afrikaans", "Malay", "Ukrainian"], "subject_type": "company", "subject": "Harris Designs PLC", "gender_type": "it"}
+{"entity_type": "Species", "entity_tag": "species", "entity_names": ["giraffe", "giant panda", "sloth"], "subject_type": "company", "subject": "Crimson Studios Inc.", "gender_type": "it"}
+{"entity_type": "Species", "entity_tag": "species", "entity_names": ["sloth", "mantis shrimp", "raccoon"], "subject_type": "company", "subject": "Moore Services PLC", "gender_type": "it"}
+{"entity_type": "Species", "entity_tag": "species", "entity_names": ["albatross", "giant panda", "giraffe"], "subject_type": "person", "subject": "Harper Morris", "gender_type": "female"}
+{"entity_type": "Organization", "entity_tag": "organization", "entity_names": ["Walt Disney Company", "Walt Disney Company", "Walt Disney Company"], "subject_type": "person", "subject": "Ethan Campbell", "gender_type": "male"}
+{"entity_type": "Creative Work", "entity_tag": "creative_work", "entity_names": ["Spirited Away", "A Separation", "Pan's Labyrinth"], "subject_type": "person", "subject": "Thomas Lopez", "gender_type": "female"}
+{"entity_type": "Language", "entity_tag": "language", "entity_names": ["Sinhala", "Ukrainian", "Malay"], "subject_type": "person", "subject": "Olivia White", "gender_type": "male"}
+{"entity_type": "Event", "entity_tag": "event", "entity_names": ["Napoleonic Wars", "Protestant Reformation", "English Civil War"], "subject_type": "company", "subject": "Campbell Innovation PLC", "gender_type": "it"}
+{"entity_type": "Language", "entity_tag": "language", "entity_names": ["Malay", "Russian", "Afrikaans"], "subject_type": "company", "subject": "Gray Networks Ltd.", "gender_type": "it"}
+{"entity_type": "Species", "entity_tag": "species", "entity_names": ["sloth", "mantis shrimp", "giant panda"], "subject_type": "company", "subject": "Moore Resources Corp.", "gender_type": "it"}
+{"entity_type": "Country", "entity_tag": "country", "entity_names": ["Sweden", "Italy", "Portugal"], "subject_type": "company", "subject": "Davis Networks PLC", "gender_type": "it"}
+{"entity_type": "Country", "entity_tag": "country", "entity_names": ["Portugal", "Azerbaijan", "Italy"], "subject_type": "company", "subject": "Alvarez Dynamics Inc.", "gender_type": "it"}
+{"entity_type": "Country", "entity_tag": "country", "entity_names": ["Italy", "Azerbaijan", "Portugal"], "subject_type": "company", "subject": "Lewis Technologies PLC", "gender_type": "it"}
+{"entity_type": "Country", "entity_tag": "country", "entity_names": ["Portugal", "Azerbaijan", "Netherlands"], "subject_type": "person", "subject": "Zoe Cook", "gender_type": "male"}
+{"entity_type": "Language", "entity_tag": "language", "entity_names": ["Russian", "Sinhala", "Afrikaans"], "subject_type": "person", "subject": "Scarlett Phillips", "gender_type": "male"}
+{"entity_type": "Species", "entity_tag": "species", "entity_names": ["chameleon", "giraffe", "mantis shrimp"], "subject_type": "person", "subject": "Abigail Hall", "gender_type": "female"}
+{"entity_type": "Country", "entity_tag": "country", "entity_names": ["Italy", "Portugal", "Netherlands"], "subject_type": "person", "subject": "Emily Miller", "gender_type": "female"}
+{"entity_type": "Creative Work", "entity_tag": "creative_work", "entity_names": ["The Road", "Pride and Prejudice", "A Separation"], "subject_type": "person", "subject": "Alexander Diaz", "gender_type": "male"}

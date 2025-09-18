@@ -38,9 +38,9 @@ class CREDataset(BaseDataset):
 
         
         if isinstance(answer, str):
-            answer = " " + answer
+            answer = " " + answer + self.tok.eos_token
         elif isinstance(answer, list):
-            answer = [" " + a for a in answer]
+            answer = [" " + a + self.tok.eos_token for a in answer]
         else:
             import pdb; pdb.set_trace()
             raise Exception("Un-handled data type")
