@@ -28,7 +28,7 @@ def main(config: DictConfig):
     editor_class = getattr(editor_module, config.editor.name.upper())
     editor = editor_class(config, model)
 
-    editor.run(train_loader, valid_loader)
+    editor.run(train_loader, valid_loader, eval_every_epoch=config.eval_every_epoch)
 
 
 if __name__ == "__main__":
