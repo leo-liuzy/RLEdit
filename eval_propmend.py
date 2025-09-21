@@ -155,8 +155,8 @@ def main(config: DictConfig):
     for batch_idx, tuples in enumerate(tqdm(test_loader, desc = "Test", ncols = 100)):
         # Cache the edit tuples
         # import pdb; pdb.set_trace()
-        editor = editor_class(config, model)
-        add_padding(tok, editor.model)
+        # editor = editor_class(config, model)
+        # add_padding(tok, editor.model)
         editor.cache(tuples["edit_tuples"])
         param_shifts = editor.predict_param_shifts()
         editor.edit_model(param_shifts, False)
@@ -196,7 +196,7 @@ def main(config: DictConfig):
             # import pdb; pdb.set_trace()
             test_inputs = []
             empty_cache(config.editor.cache_dir, config)
-            # editor.reset_model()
+            editor.reset_model()
             gc.collect()
             torch.cuda.empty_cache()
     df = pd.concat(all_results, axis=0, ignore_index=True)

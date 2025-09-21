@@ -22,6 +22,6 @@
 # CUDA_VISIBLE_DEVICES=0 python main.py dataset=zsre model=llama3.2-1B-eos-sft-template-format-curated-v1-lr2e-6-sample-10-4-15 editor=rledit num_seq=100 editor.n_epochs=1 dataset.n_edits=10 dataset.batch_size=5
 export CUDA_VISIBLE_DEVICES=7
 # python main.py dataset=zsre model=llama3.2-1B-eos-sft-template-format-curated-v1-lr2e-6-sample-10-4-15 editor=rledit num_seq=400 editor.n_epochs=1 dataset.n_edits=20
-python main.py dataset=cre model=llama3.2-1B-eos-sft-template-format-curated-v1-lr2e-6-sample-10-4-15 editor=rledit num_seq=2 editor.n_epochs=800 dataset.n_edits=5 eval_every_epoch=32
+python main.py dataset=cre model=llama3.2-1B-eos-sft-template-format-curated-v1-lr2e-6-sample-10-4-15 editor=rledit num_seq=1 editor.n_epochs=6000 dataset.n_edits=5 eval_every_epoch=32 editor.rank=1920 editor.loc_coef=1
 
 # python main.py dataset=cre model=llama3.2-1B-eos-sft-template-format-curated-v1-lr2e-6-sample-10-4-15 editor=rledit num_seq=20 editor.n_epochs=250 dataset.n_edits=2 dataset.batch_size=1

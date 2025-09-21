@@ -205,7 +205,7 @@ class RLEDIT(BaseEditor):
             keys = torch.cat(
                 [
                     torch.load(
-                        f"{self.config.editor.cache_dir}/{self.config.model.name}_{self.config.editor.name}_{self.config.dataset.n_edits}_{self.config.num_seq}_ep={self.config.editor.n_epochs}/{module_idx}_{idx}_keys.pth"
+                        f"{self.config.editor.cache_dir}/{self.config.model.name}_{self.config.editor.name}_{self.config.dataset.name}_{self.config.dataset.n_edits}_{self.config.num_seq}_ep={self.config.editor.n_epochs}/{module_idx}_{idx}_keys.pth"
                     )
                     for idx in range(math.ceil(self.config.dataset.n_edits / self.config.dataset.batch_size))
                 ]
@@ -213,7 +213,7 @@ class RLEDIT(BaseEditor):
             values_grad = torch.cat(
                 [
                     torch.load(
-                        f"{self.config.editor.cache_dir}/{self.config.model.name}_{self.config.editor.name}_{self.config.dataset.n_edits}_{self.config.num_seq}_ep={self.config.editor.n_epochs}/{module_idx}_{idx}_values_grad.pth"
+                        f"{self.config.editor.cache_dir}/{self.config.model.name}_{self.config.editor.name}_{self.config.dataset.name}_{self.config.dataset.n_edits}_{self.config.num_seq}_ep={self.config.editor.n_epochs}/{module_idx}_{idx}_values_grad.pth"
                     )
                     for idx in range(math.ceil(self.config.dataset.n_edits // self.config.dataset.batch_size))
                 ]
@@ -249,7 +249,7 @@ class RLEDIT(BaseEditor):
             keys = torch.cat(
                 [
                     torch.load(
-                        f"{self.config.editor.cache_dir}/{self.config.model.name}_{self.config.editor.name}_{self.config.dataset.n_edits}_{self.config.num_seq}_ep={self.config.editor.n_epochs}/{module_idx}_{idx}_keys.pth"
+                        f"{self.config.editor.cache_dir}/{self.config.model.name}_{self.config.editor.name}_{self.config.dataset.name}_{self.config.dataset.n_edits}_{self.config.num_seq}_ep={self.config.editor.n_epochs}/{module_idx}_{idx}_keys.pth"
                     )
                     for idx in range(math.ceil(self.config.dataset.n_edits / self.config.dataset.batch_size))
                 ]
@@ -257,7 +257,7 @@ class RLEDIT(BaseEditor):
             values_grad = torch.cat(
                 [
                     torch.load(
-                        f"{self.config.editor.cache_dir}/{self.config.model.name}_{self.config.editor.name}_{self.config.dataset.n_edits}_{self.config.num_seq}_ep={self.config.editor.n_epochs}/{module_idx}_{idx}_values_grad.pth"
+                        f"{self.config.editor.cache_dir}/{self.config.model.name}_{self.config.editor.name}_{self.config.dataset.name}_{self.config.dataset.n_edits}_{self.config.num_seq}_ep={self.config.editor.n_epochs}/{module_idx}_{idx}_values_grad.pth"
                     )
                     for idx in range(math.ceil(self.config.dataset.n_edits / self.config.dataset.batch_size))
                 ]
@@ -339,11 +339,11 @@ class RLEDIT(BaseEditor):
                     early_stop_counter = 0
                     torch.save(
                         self.net.state_dict(),
-                        f"checkpoints/{self.config.model.name}_{self.config.editor.name}_{str(self.config.dataset.n_edits)}_{str(self.config.num_seq)}_ep{self.config.editor.n_epochs}_net.pth",
+                        f"checkpoints/{self.config.model.name}_{self.config.editor.name}_{self.config.dataset.name}_{str(self.config.dataset.n_edits)}_{str(self.config.num_seq)}_ep{self.config.editor.n_epochs}_net.pth",
                     )
                     torch.save(
                         self.opt.state_dict(),
-                        f"checkpoints/{self.config.model.name}_{self.config.editor.name}_{str(self.config.dataset.n_edits)}_{str(self.config.num_seq)}_ep{self.config.editor.n_epochs}_opt.pth",
+                        f"checkpoints/{self.config.model.name}_{self.config.editor.name}_{self.config.dataset.name}_{str(self.config.dataset.n_edits)}_{str(self.config.num_seq)}_ep{self.config.editor.n_epochs}_opt.pth",
                     )
                     print("-----Saved checkpoints-----")
 

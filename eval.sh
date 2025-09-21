@@ -20,14 +20,14 @@
 # CUDA_VISIBLE_DEVICES=0 python main.py dataset=zsre model=llama-3.2-instruct editor=rledit num_seq=200 editor.n_epochs=20
 
 # CUDA_VISIBLE_DEVICES=0 python main.py dataset=zsre model=llama3.2-1B-eos-sft-template-format-curated-v1-lr2e-6-sample-10-4-15 editor=rledit num_seq=100 editor.n_epochs=1 dataset.n_edits=10 dataset.batch_size=5
-export CUDA_VISIBLE_DEVICES=0
+export CUDA_VISIBLE_DEVICES=4
 n_edits=5
-n_epochs=20
+n_epochs=3000
 num_seq=2
-python eval_propmend.py dataset=cre model=llama3.2-1B-eos-sft-template-format-curated-v1-lr2e-6-sample-10-4-15 editor=rledit num_seq=$num_seq editor.n_epochs=$n_epochs dataset.n_edits=$n_edits editor.load_checkpoint=True +test_type=test_id
+python eval_propmend.py dataset=cre model=llama3.2-1B-eos-sft-template-format-curated-v1-lr2e-6-sample-10-4-15 editor=rledit num_seq=$num_seq editor.n_epochs=$n_epochs dataset.n_edits=$n_edits editor.load_checkpoint=True +test_type=test_id editor.rank=1920 editor.loc_coef=1
 
-python eval_propmend.py dataset=cre model=llama3.2-1B-eos-sft-template-format-curated-v1-lr2e-6-sample-10-4-15 editor=rledit num_seq=$num_seq editor.n_epochs=$n_epochs dataset.n_edits=$n_edits editor.load_checkpoint=True +test_type=test_ood_both
+python eval_propmend.py dataset=cre model=llama3.2-1B-eos-sft-template-format-curated-v1-lr2e-6-sample-10-4-15 editor=rledit num_seq=$num_seq editor.n_epochs=$n_epochs dataset.n_edits=$n_edits editor.load_checkpoint=True +test_type=test_ood_both editor.rank=1920 editor.loc_coef=1
 
-python eval_propmend.py dataset=cre model=llama3.2-1B-eos-sft-template-format-curated-v1-lr2e-6-sample-10-4-15 editor=rledit num_seq=$num_seq editor.n_epochs=$n_epochs dataset.n_edits=$n_edits editor.load_checkpoint=True +test_type=test_ood_entity
+python eval_propmend.py dataset=cre model=llama3.2-1B-eos-sft-template-format-curated-v1-lr2e-6-sample-10-4-15 editor=rledit num_seq=$num_seq editor.n_epochs=$n_epochs dataset.n_edits=$n_edits editor.load_checkpoint=True +test_type=test_ood_entity editor.rank=1920 editor.loc_coef=1
 
-python eval_propmend.py dataset=cre model=llama3.2-1B-eos-sft-template-format-curated-v1-lr2e-6-sample-10-4-15 editor=rledit num_seq=$num_seq editor.n_epochs=$n_epochs dataset.n_edits=$n_edits editor.load_checkpoint=True +test_type=test_ood_relation
+python eval_propmend.py dataset=cre model=llama3.2-1B-eos-sft-template-format-curated-v1-lr2e-6-sample-10-4-15 editor=rledit num_seq=$num_seq editor.n_epochs=$n_epochs dataset.n_edits=$n_edits editor.load_checkpoint=True +test_type=test_ood_relation editor.rank=1920 editor.loc_coef=1
